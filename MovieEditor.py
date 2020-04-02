@@ -1,5 +1,4 @@
 import cv2
-import numpy as np
 
 # 경로 입력 받은 후 파일 유무 확인
 while True:
@@ -7,10 +6,13 @@ while True:
     try:
         f = open(filePath, 'r')
         movieData = cv2.VideoCapture(filePath)
-        break
+        # 파일이 없을 경우에는 괜찮지만 동영상 파일이 아닐 경우에는 제대로 작동하지 않을 수 있음.
+        if movieData.isOpened():
+            break
+        else:
+            print("동영상 파일이 아닙니다.")
     except FileNotFoundError:
         print("파일이 없습니다.")
-
 
 selType = 0
 while True:
@@ -18,18 +20,37 @@ while True:
         print('''1. 프레임 새기기 2. 프레임 가리기 3. 프레임 삭제''')
         selType = int(input("숫자를 입력하세요."))
         if (selType < 1) or (selType > 3):
-            print('''1 ~ 3까지의 숫자를 입력하세요''')
+            print('''1 ~ 3까지의 숫자를 입력하세요.''')
         else:
             break
     except ValueError:
-        print('''숫자를 입력해주세요''')
+        print('''숫자를 입력해주세요.''')
 
+# 파일 확장자 알아내기
+"""
+ 파일 확장자는 가장 끝부분에 .***의 형식으로 되어 있다.
+ 따라서 파일 경로를 거꾸로 뒤집은 뒤 .이 나올 때 까지 반복문을 돌리고
+ 나오는 순간 반복문을 탈출하여 거꾸로 저장해나간 문자열을 다시 뒤집으면
+ 그 파일의 확장자가 된다.
+"""
+extension = ''
+for c in filePath[::-1]:
+    extension = extension + c
+    if c == '.':
+        break
+
+extension = extension[::-1]
+
+# 코덱을 영상 자체 파일로 저장하는 방법. 다만 아직 오류로 인해 작동을 잘 하지 않음.
+# 코덱이 잘 작동하지 않기 때문에 알아낸 확장자도 이용할 수 없다.
+# codec = int(movieData.get(cv2.CAP_PROP_FOURCC))
+extension = '.avi'
 # 결과 출력
 codec = cv2.VideoWriter_fourcc(*'DIVX')
 width = movieData.get(cv2.CAP_PROP_FRAME_WIDTH)
 height = movieData.get(cv2.CAP_PROP_FRAME_HEIGHT)
 fps = movieData.get(cv2.CAP_PROP_FPS)
-output = cv2.VideoWriter('output.avi', codec, fps, (int(width), int(height)))
+output = cv2.VideoWriter('output' + extension, codec, fps, (int(width), int(height)))
 
 # 프레임가리는 사각형
 loadedImg = cv2.imread("data/BlackImage.jpg")
