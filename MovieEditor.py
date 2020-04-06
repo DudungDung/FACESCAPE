@@ -1,13 +1,35 @@
 import cv2
 
+# 파일 확장자 알아내기
+"""
+ 파일 확장자는 가장 끝부분에 .***의 형식으로 되어 있다.
+ 따라서 파일 경로를 거꾸로 뒤집은 뒤 .이 나올 때 까지 반복문을 돌리고
+ 나오는 순간 반복문을 탈출하여 거꾸로 저장해나간 문자열을 다시 뒤집으면
+ 그 파일의 확장자가 된다.
+"""
+
+
+def FindExtension(str):
+    ext = ''
+    for c in str[::-1]:
+        ext = ext + c
+        if c == '.':
+            break
+    ext = ext[::-1]
+    return ext
+
+
 # 경로 입력 받은 후 파일 유무 확인
+movieExtensionList = ['.mkv', '.avi', '.mp4', '.mpg', '.flv', '.wmv', '.asf', '.asx', '.ogm', '.ogv', '.mov']
+
 while True:
     filePath = input("파일 경로를 입력하세요.")
     try:
         f = open(filePath, 'r')
-        movieData = cv2.VideoCapture(filePath)
+        extension = FindExtension(filePath)
         # 파일이 없을 경우에는 괜찮지만 동영상 파일이 아닐 경우에는 제대로 작동하지 않을 수 있음.
-        if movieData.isOpened():
+        if extension in movieExtensionList:
+            movieData = cv2.VideoCapture(filePath)
             break
         else:
             print("동영상 파일이 아닙니다.")
@@ -26,27 +48,8 @@ while True:
     except ValueError:
         print('''숫자를 입력해주세요.''')
 
-# 파일 확장자 알아내기
-"""
- 파일 확장자는 가장 끝부분에 .***의 형식으로 되어 있다.
- 따라서 파일 경로를 거꾸로 뒤집은 뒤 .이 나올 때 까지 반복문을 돌리고
- 나오는 순간 반복문을 탈출하여 거꾸로 저장해나간 문자열을 다시 뒤집으면
- 그 파일의 확장자가 된다.
-"""
-extension = ''
-for c in filePath[::-1]:
-    extension = extension + c
-    if c == '.':
-        break
-
-extension = extension[::-1]
-
-# 코덱을 영상 자체 파일로 저장하는 방법. 다만 아직 오류로 인해 작동을 잘 하지 않음.
-# 코덱이 잘 작동하지 않기 때문에 알아낸 확장자도 이용할 수 없다.
-# codec = int(movieData.get(cv2.CAP_PROP_FOURCC))
-extension = '.avi'
-# 결과 출력
-codec = cv2.VideoWriter_fourcc(*'DIVX')
+# 출력 결과 파일 output.* 파일로 폴더에 저장
+codec = int(movieData.get(cv2.CAP_PROP_FOURCC))
 width = movieData.get(cv2.CAP_PROP_FRAME_WIDTH)
 height = movieData.get(cv2.CAP_PROP_FRAME_HEIGHT)
 fps = movieData.get(cv2.CAP_PROP_FPS)
