@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=D:\D드라이브저장\학교\3-1\소프\FACESCAPE\venv
+set VIRTUAL_ENV=C:\Users\sec\PycharmProjects\real_opencv\venv
 
 if not defined PROMPT set PROMPT=$P$G
 
