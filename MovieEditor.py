@@ -1,4 +1,7 @@
 import cv2
+from moviepy.editor import *
+
+import GuiManager
 
 # 파일 확장자 알아내기
 """
@@ -7,6 +10,14 @@ import cv2
  나오는 순간 반복문을 탈출하여 거꾸로 저장해나간 문자열을 다시 뒤집으면
  그 파일의 확장자가 된다.
 """
+
+
+def codec_to_string(cc):
+    cc = int(cc)
+    codec_str = ""
+    for i in range(4):
+        codec_str = codec_str + chr((cc >> 8 * i) & 0xFF)
+    return codec_str
 
 
 def FindExtension(str):
@@ -20,10 +31,11 @@ def FindExtension(str):
 
 
 # 경로 입력 받은 후 파일 유무 확인
-movieExtensionList = ['.mkv', '.avi', '.mp4', '.mpg', '.flv', '.wmv', '.asf', '.asx', '.ogm', '.ogv', '.mov']
+movieExtensionList = ['.mkv', '.avi', '.mp4', '.mpg', '.flv', '.wmv']
 
 while True:
-    filePath = input("파일 경로를 입력하세요.")
+    filePath = GuiManager.LoadMovieFile()
+    print(filePath)
     try:
         f = open(filePath, 'r')
         extension = FindExtension(filePath)
@@ -39,21 +51,23 @@ while True:
 selType = 0
 while True:
     try:
-        print('''1. 프레임 새기기 2. 프레임 가리기 3. 프레임 삭제''')
+        print('''1. 프레임 새기기 2. 프레임 가리기 3. 프레임 삭제(X)''')
         selType = int(input("숫자를 입력하세요."))
         if (selType < 1) or (selType > 3):
-            print('''1 ~ 3까지의 숫자를 입력하세요.''')
+            print('''1 ~ 2까지의 숫자를 입력하세요.''')
         else:
             break
     except ValueError:
         print('''숫자를 입력해주세요.''')
 
-# 출력 결과 파일 output.* 파일로 폴더에 저장
-codec = int(movieData.get(cv2.CAP_PROP_FOURCC))
+# 출력 결과 파일을 data폴더에 temp.* 파일로 폴더에 저장
+videoCodec = int(movieData.get(cv2.CAP_PROP_FOURCC))
 width = movieData.get(cv2.CAP_PROP_FRAME_WIDTH)
 height = movieData.get(cv2.CAP_PROP_FRAME_HEIGHT)
 fps = movieData.get(cv2.CAP_PROP_FPS)
-output = cv2.VideoWriter('output' + extension, codec, fps, (int(width), int(height)))
+fileName = 'output' + extension
+tempFileName = "data/Temp"+extension
+output = cv2.VideoWriter(tempFileName, videoCodec, fps, (int(width), int(height)))
 
 # 프레임가리는 사각형
 loadedImg = cv2.imread("data/BlackImage.jpg")
@@ -70,7 +84,6 @@ thickness = 2
 # 영상 읽기
 while movieData.isOpened():
     ret, frame = movieData.read()
-
     if frame is None:
         break
 
@@ -86,17 +99,25 @@ while movieData.isOpened():
         else:
             output.write(frame)
 
+    # 3번일 경우 아무런 처리도 해주지 않음
     elif selType == 3:
         if 30 > number or number > 80:
             output.write(frame)
 
     # 다음 프레임으로 진행
     number = number + 1
-    # 3번일 경우 아무런 처리도 해주지 않음
     # cv2.imshow('frame', frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
+# OpenCV를 통해 영상처리가 끝난 파일들을 release해줌
 movieData.release()
 output.release()
 cv2.destroyAllWindows()
+
+# 영상에 소리를 입히기 위해서 moviePy를 이용하여 파일을 저장. 임시로 만들어둔 data/temp.*파일은 삭제
+audioClip = AudioFileClip(filePath)
+videoClip = VideoFileClip(tempFileName)
+videoFile = videoClip.set_audio(audioClip)
+videoFile.write_videofile(fileName)
+os.remove(tempFileName)
