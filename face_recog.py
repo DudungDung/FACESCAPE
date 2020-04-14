@@ -3,12 +3,22 @@ import numpy as np
 from os import listdir
 from os.path import isfile, join
 
+face_classifier = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+def face_detector(img, size = -1.5):
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    faces = face_classifier.detectMultiScale(gray,1.3,5)
+    if faces is():
+        return img,[]
+    for(x,y,w,h) in faces:
+        cv2.rectangle(img, (x,y),(x+w,y+h),(0,255,255),2)
+        roi = img[y:y+h, x:x+w]
+        roi = cv2.resize(roi, (200,200))
+    return img,roi   #검출된 좌표에 사각 박스 그리고(img), 검출된 부위를 잘라(roi) 전달
+
 
 def face_extractor(img):
-    #흑백처리
-    gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-    #얼굴 찾기
-    faces = face_classifier.detectMultiScale(gray,1.3,5)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    faces = face_classifier.detectMultiScale(gray, 1.3, 5)
     #찾은 얼굴이 없으면 None으로 리턴
     if faces is():
         return None
@@ -19,36 +29,32 @@ def face_extractor(img):
         #가장 마지막의 얼굴만 남을 듯
         cropped_face = img[y:y+h, x:x+w]
     #cropped_face 리턴
+    cropped_face = cv2.resize(cropped_face, (200, 200))
     return cropped_face
-while True:
-    #카메라로 부터 사진 1장 얻기
-    ret, frame = face.read()
-    #얼굴 감지 하여 얼굴만 가져오기
-    if face_extractor(frame) is not None:
-        count += 1
-        #얼굴 이미지 크기를 200x200으로 조정
-        face = cv2.resize(face_extractor(frame),(200,200))
-        #조정된 이미지를 흑백으로 변환
-        face = cv2.cvtColor(face, cv2.COLOR_BGR2GRAY)
-        #faces폴더에 jpg파일로 저장
-        # ex > faces/user0.jpg   faces/user1.jpg ....
-        file_name_path = 'faces/user'+str(count)+'.jpg'
-        cv2.imwrite(file_name_path,face)
 
-        #화면에 얼굴과 현재 저장 개수 표시
-        cv2.putText(face,str(count),(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(0,255,0),2)
-        cv2.imshow('Face Cropper',face)
-    else:
-        print("Face not Found")
-        pass
 
-    if cv2.waitKey(1)==13 or count==100:
-        break
-
-##### 여기서부터는 Part2.py와 동일
 data_path = 'faces/'
 onlyfiles = [f for f in listdir(data_path) if isfile(join(data_path,f))]
 Training_Data, Labels = [], []
+
+count = 0
+for i, files in enumerate(onlyfiles):
+    image_path = data_path + onlyfiles[i]
+    image = cv2.imread(image_path, cv2.IMREAD_COLOR)
+    if face_extractor(image) is not None:
+        count += 1
+        img = cv2.resize(face_extractor(image), (200, 200))
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        file_name_path = 'facess/user' + str(count) + '.jpg'
+        cv2.imwrite(file_name_path, img)
+    else:
+        print("Face not found")
+
+
+data_path = 'facess/'
+onlyfiles = [f for f in listdir(data_path) if isfile(join(data_path,f))]
+Training_Data, Labels = [], []
+
 for i, files in enumerate(onlyfiles):
     image_path = data_path + onlyfiles[i]
     images = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
@@ -63,19 +69,8 @@ Labels = np.asarray(Labels, dtype=np.int32)
 model = cv2.face.LBPHFaceRecognizer_create()
 model.train(np.asarray(Training_Data), np.asarray(Labels))
 print("Model Training Complete!!!!!")
-#### 여기까지 Part2.py와 동일
-face_classifier = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-def face_detector(img, size = 0.5):
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    faces = face_classifier.detectMultiScale(gray,1.3,5)
-    if faces is():
-        return img,[]
-    for(x,y,w,h) in faces:
-        cv2.rectangle(img, (x,y),(x+w,y+h),(0,255,255),2)
-        roi = img[y:y+h, x:x+w]
-        roi = cv2.resize(roi, (200,200))
-    return img,roi   #검출된 좌표에 사각 박스 그리고(img), 검출된 부위를 잘라(roi) 전달
-#### 여기까지 Part1.py와 거의 동일
+
+print(model)
 def FindExtension(str):
     ext = ''
     for c in str[::-1]:
@@ -84,6 +79,7 @@ def FindExtension(str):
             break
     ext = ext[::-1]
     return ext
+
 movieExtensionList = ['.mkv', '.avi', '.mp4', '.mpg', '.flv', '.wmv', '.asf', '.asx', '.ogm', '.ogv', '.mov']
 while True:
     filePath = input("파일 경로를 입력하세요.")
@@ -131,23 +127,23 @@ while movieData.isOpened():
         if result[1] < 500:
             confidence = int(100*(1-(result[1])/300))
         # 유사도 화면에 표시
-        #display_string = str(confidence)+'% Confidence it is user'
-        #cv2.putText(image,display_string,(100,120), cv2.FONT_HERSHEY_COMPLEX,1,(250,120,255),2)
+        display_string = str(confidence)+'% Confidence it is user'
+        cv2.putText(image,display_string,(100,120), cv2.FONT_HERSHEY_COMPLEX,1,(250,120,255),2)
         #75 보다 크면 동일 인물로 간주해 UnLocked!
         if confidence > 75:
-            cv2.putText(frame, "Frame 1", loc, font, fontScale, black, thickness)
-            output.write(frame)
-            #output.write(blackRec)
-            #cv2.putText(image, "Unlocked", (250, 450), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 2)
-            #cv2.imshow('Face Cropper', image)
+           # cv2.putText(frame, "Frame 1", loc, font, fontScale, black, thickness)
+           # output.write(frame)
+            cv2.putText(image, "Unlocked", (250, 450), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 2)
+           # cv2.imshow('Face Cropper', image)
+            output.write(image)
         else:
             #75 이하면 타인.. Locked!!!
-            output.write(frame)
-            #cv2.putText(image, "Locked", (250, 450), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 2)
+            cv2.putText(image, "Locked", (250, 450), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 2)
             #cv2.imshow('Face Cropper', image)
+            output.write(image)
     except:
     #얼굴 검출 안됨
-        #cv2.putText(image, "Face Not Found", (250, 450), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 0), 2)
+        cv2.putText(image, "Face Not Found", (250, 450), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 0), 2)
         #cv2.imshow('Face Cropper', image)
         pass
     if cv2.waitKey(1) == 13 and (0xFF == ord('q')):

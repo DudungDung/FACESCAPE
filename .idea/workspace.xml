@@ -3,7 +3,19 @@
   <component name="ChangeListManager">
     <list default="true" id="e61c4252-5412-41d4-989f-06fa2cbf10ae" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/face_recog.py" beforeDir="false" afterPath="$PROJECT_DIR$/face_recog.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/faces/images (1).jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/faces/images (10).jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/faces/images (2).jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/faces/images (3).jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/faces/images (4).jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/faces/images (5).jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/faces/images (6).jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/faces/images (7).jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/faces/images (8).jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/faces/images (9).jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/faces/images.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.mp4" beforeDir="false" afterPath="$PROJECT_DIR$/test.mp4" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -53,7 +65,29 @@
       </list>
     </option>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.face_recog">
+    <configuration name="face_recog" type="PythonConfigurationType" factoryName="Python">
+      <module name="real_opencv" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="C:\Users\SANGSUN\PycharmProjects\dsiejf\venv\Scripts\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/face_recog.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="real_opencv" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -89,6 +123,7 @@
       <updated>1584949904340</updated>
       <workItem from="1586278534697" duration="2000" />
       <workItem from="1586531410915" duration="165000" />
+      <workItem from="1586860205992" duration="3137000" />
     </task>
     <servers />
   </component>
@@ -137,5 +172,8 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="1132" y="344" key="com.intellij.ide.util.TipDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1586155525018" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/FACESCAPE$face_recog.coverage" NAME="face_recog Coverage Results" MODIFIED="1586867032189" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
