@@ -1,7 +1,10 @@
-import tkinter as tk
-import tkinter.font as tkfont
+import os
+
+import tkinter.font as tkf
 from tkinter import *
 from tkinter import filedialog
+
+import MovieEditor as me
 
 
 class MainFrame(Frame):
@@ -17,7 +20,7 @@ class MainFrame(Frame):
         # 빈공간
         emptyFrame = Frame(self)
         emptyFrame.pack(fill=X)
-        nameFont = tkfont.Font(size=15, weight="bold")
+        nameFont = tkf.Font(size=15, weight="bold")
         emptyLabel = Label(emptyFrame, text="FACESCAPE", font=nameFont)
         emptyLabel.pack(pady=10)
 
@@ -44,6 +47,16 @@ class MainFrame(Frame):
         saveDirInput.pack(side=LEFT, padx=3, pady=10)
         saveDirButton.pack(side=LEFT, padx=4, pady=10)
 
+        # 파일 이름
+        saveNameFrame = Frame(self)
+        saveNameFrame.pack(fill=NONE)
+        saveNameLbl = Label(saveNameFrame, text="파일 이름: ", width=10, height=1)
+        self.saveFileName = StringVar()
+        self.saveFileName.set("Output")
+        saveNameInput = Entry(saveNameFrame, textvariable=self.saveFileName, width=20)
+        saveNameLbl.pack(side=LEFT, padx=8, pady=10)
+        saveNameInput.pack(side=LEFT, padx=3, pady=10)
+
         # 옵션 선택
         optionFrame = Frame(self)
         optionFrame.pack(fill=NONE)
@@ -63,7 +76,8 @@ class MainFrame(Frame):
         # 실행 상태
         progressFrame = Frame(self)
         progressFrame.pack(fill=BOTH)
-        progressLabel = Label(progressFrame, text="", relief=SOLID, bd=1,
+        self.progressMessage = StringVar()
+        progressLabel = Label(progressFrame, textvariable=self.progressMessage, relief=SOLID, bd=1,
                               bg='ghost white', width=50, height=30)
         progressLabel.pack(side=TOP, anchor=N, padx=5, pady=5)
 
@@ -79,8 +93,36 @@ class MainFrame(Frame):
         self.savePath.set(path)
 
     def Activate(self):
-        if self.isActivated is False:
-            a = 1
+
+        if self.filePath.get() == "" or None:
+            self.SetProgressMessage("동영상 파일이 선택되지 않았습니다.")
+
+        else:
+            checkMsg = me.checkFile(self.filePath.get())
+            
+            if checkMsg is not None:
+                self.SetProgressMessage(checkMsg)
+
+            elif self.savePath.get() == "" or None:
+                self.SetProgressMessage("저장 파일 위치가 설정되지 않았습니다.")
+
+            elif self.saveFileName.get() == "" or None:
+                self.SetProgressMessage("파일 이름이 설정되지 않았습니다.")
+
+            elif self.optionNumber.get() != 1 and 2:
+                print(self.optionNumber.get())
+                self.SetProgressMessage("옵션이 선택되지 않았습니다.")
+
+            else:
+                self.progressMessage.set("실행 중")
+                saveFilePath = self.savePath.get() + "/" + self.saveFileName.get()
+                extension = me.FindExtension(self.filePath.get())
+                me.Editing_Movie(self.filePath.get(), self.optionNumber.get(), saveFilePath, extension)
+                self.progressMessage.set("실행 완료")
+                os.startfile(self.savePath.get())
+
+    def SetProgressMessage(self, msg):
+        self.progressMessage.set(msg)
 
 
 def MainGUI():
