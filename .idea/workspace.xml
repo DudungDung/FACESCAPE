@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-<<<<<<< HEAD
-    <list default="true" id="e61c4252-5412-41d4-989f-06fa2cbf10ae" name="Default Changelist" comment="" />
-=======
     <list default="true" id="da5a98cd-b470-4c2c-9cdc-1b0b7497ea95" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
->>>>>>> 12b52b87380a0d60018ddecc984c2e00bb04a8d1
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,15 +16,10 @@
       </list>
     </option>
   </component>
-<<<<<<< HEAD
-  <component name="ProjectId" id="1ZWLSdm8QS2aEeOCVYbAZIityyq" />
-=======
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="1ZbwZnBJMIdyVEYFZFLET9Di4sR" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
->>>>>>> 12b52b87380a0d60018ddecc984c2e00bb04a8d1
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showExcludedFiles" value="true" />
@@ -36,244 +27,30 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-<<<<<<< HEAD
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-  </component>
-  <component name="RunManager">
-    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="real_opencv" />
-=======
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="node.js.detected.package.eslint" value="true" />
-    <property name="node.js.detected.package.tslint" value="true" />
-    <property name="node.js.path.for.package.eslint" value="project" />
-    <property name="node.js.path.for.package.tslint" value="project" />
-    <property name="node.js.selected.package.eslint" value="(autodetect)" />
-    <property name="node.js.selected.package.tslint" value="(autodetect)" />
-  </component>
-  <component name="RunManager" selected="Python.GuiManager">
-    <configuration name="GuiManager" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="FACESCAPE" />
->>>>>>> 12b52b87380a0d60018ddecc984c2e00bb04a8d1
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-<<<<<<< HEAD
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
-=======
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/GuiManager.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="MovieEditor" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="FACESCAPE" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/MovieEditor.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="ScreenEditor" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="FACESCAPE" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ScreenEditor.py" />
->>>>>>> 12b52b87380a0d60018ddecc984c2e00bb04a8d1
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <recent_temporary>
-      <list>
-<<<<<<< HEAD
-        <item itemvalue="Python.main" />
-=======
-        <item itemvalue="Python.GuiManager" />
-        <item itemvalue="Python.MovieEditor" />
-        <item itemvalue="Python.ScreenEditor" />
->>>>>>> 12b52b87380a0d60018ddecc984c2e00bb04a8d1
-      </list>
-    </recent_temporary>
   </component>
   <component name="SvnConfiguration">
     <configuration />
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="e61c4252-5412-41d4-989f-06fa2cbf10ae" name="Default Changelist" comment="" />
-      <created>1584949904340</created>
+      <changelist id="da5a98cd-b470-4c2c-9cdc-1b0b7497ea95" name="Default Changelist" comment="" />
+      <created>1585121159701</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-<<<<<<< HEAD
-      <updated>1584949904340</updated>
-=======
       <updated>1585121159701</updated>
       <workItem from="1585121163661" duration="43000" />
-      <workItem from="1585121727518" duration="120000" />
-      <workItem from="1585214246774" duration="14000" />
-      <workItem from="1585548660322" duration="2013000" />
-      <workItem from="1585656873007" duration="608000" />
-      <workItem from="1585721553036" duration="6388000" />
-      <workItem from="1585804077091" duration="3077000" />
-      <workItem from="1585836870649" duration="8615000" />
-      <workItem from="1586155964566" duration="4531000" />
-      <workItem from="1586327512580" duration="519000" />
-      <workItem from="1586425862867" duration="4072000" />
-      <workItem from="1586502836022" duration="1491000" />
-      <workItem from="1586504554413" duration="16484000" />
-      <workItem from="1586776992191" duration="10173000" />
-      <workItem from="1586863895251" duration="40000" />
-      <workItem from="1586863984548" duration="2000" />
-      <workItem from="1586872937905" duration="3685000" />
->>>>>>> 12b52b87380a0d60018ddecc984c2e00bb04a8d1
     </task>
     <servers />
   </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
   <component name="WindowStateProjectService">
-<<<<<<< HEAD
-    <state x="414" y="175" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1584950177531">
+    <state x="599" y="351" key="com.intellij.ide.util.TipDialog" timestamp="1586937170361">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="414" y="175" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1584950177531" />
-    <state x="967" y="381" key="FileChooserDialogImpl" timestamp="1585631155238">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="967" y="381" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1585631155238" />
-    <state width="936" height="263" key="GridCell.Tab.0.bottom" timestamp="1585751552806">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="936" height="263" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1585751552806" />
-    <state width="936" height="263" key="GridCell.Tab.0.center" timestamp="1585751552806">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="936" height="263" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1585751552806" />
-    <state width="936" height="263" key="GridCell.Tab.0.left" timestamp="1585751552806">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="936" height="263" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1585751552806" />
-    <state width="936" height="263" key="GridCell.Tab.0.right" timestamp="1585751552806">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="936" height="263" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1585751552806" />
-    <state x="1132" y="344" key="com.intellij.ide.util.TipDialog" timestamp="1586155525018">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="1132" y="344" key="com.intellij.ide.util.TipDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1586155525018" />
-=======
-    <state x="452" y="124" key="CommitChangelistDialog2" timestamp="1585733091650">
-      <screen x="0" y="0" width="1920" height="1080" />
-    </state>
-    <state x="452" y="124" key="CommitChangelistDialog2/0.0.1920.1080/1920.0.1920.1080@0.0.1920.1080" timestamp="1585733091650" />
-    <state x="559" y="278" key="FileChooserDialogImpl" timestamp="1586863929581">
-      <screen x="0" y="0" width="1920" height="1080" />
-    </state>
-    <state x="559" y="278" key="FileChooserDialogImpl/0.0.1920.1080/1920.0.1920.1080@0.0.1920.1080" timestamp="1586863929581" />
-    <state x="2479" y="278" key="FileChooserDialogImpl/0.0.1920.1080/1920.0.1920.1080@1920.0.1920.1080" timestamp="1586327574040" />
-    <state width="1345" height="264" key="GridCell.Tab.0.bottom" timestamp="1586876626389">
-      <screen x="0" y="0" width="1920" height="1080" />
-    </state>
-    <state width="1345" height="264" key="GridCell.Tab.0.bottom/0.0.1920.1080/1920.0.1920.1080@0.0.1920.1080" timestamp="1586876626389" />
-    <state width="1345" height="264" key="GridCell.Tab.0.center" timestamp="1586876626389">
-      <screen x="0" y="0" width="1920" height="1080" />
-    </state>
-    <state width="1345" height="264" key="GridCell.Tab.0.center/0.0.1920.1080/1920.0.1920.1080@0.0.1920.1080" timestamp="1586876626389" />
-    <state width="1345" height="264" key="GridCell.Tab.0.left" timestamp="1586876626389">
-      <screen x="0" y="0" width="1920" height="1080" />
-    </state>
-    <state width="1345" height="264" key="GridCell.Tab.0.left/0.0.1920.1080/1920.0.1920.1080@0.0.1920.1080" timestamp="1586876626389" />
-    <state width="1345" height="264" key="GridCell.Tab.0.right" timestamp="1586876626389">
-      <screen x="0" y="0" width="1920" height="1080" />
-    </state>
-    <state width="1345" height="264" key="GridCell.Tab.0.right/0.0.1920.1080/1920.0.1920.1080@0.0.1920.1080" timestamp="1586876626389" />
-    <state width="1340" height="328" key="GridCell.Tab.1.bottom" timestamp="1585750887378">
-      <screen x="0" y="0" width="1920" height="1080" />
-    </state>
-    <state width="1340" height="328" key="GridCell.Tab.1.bottom/0.0.1920.1080/1920.0.1920.1080@0.0.1920.1080" timestamp="1585750887378" />
-    <state width="1340" height="328" key="GridCell.Tab.1.center" timestamp="1585750887378">
-      <screen x="0" y="0" width="1920" height="1080" />
-    </state>
-    <state width="1340" height="328" key="GridCell.Tab.1.center/0.0.1920.1080/1920.0.1920.1080@0.0.1920.1080" timestamp="1585750887378" />
-    <state width="1340" height="328" key="GridCell.Tab.1.left" timestamp="1585750887378">
-      <screen x="0" y="0" width="1920" height="1080" />
-    </state>
-    <state width="1340" height="328" key="GridCell.Tab.1.left/0.0.1920.1080/1920.0.1920.1080@0.0.1920.1080" timestamp="1585750887378" />
-    <state width="1340" height="328" key="GridCell.Tab.1.right" timestamp="1585750887378">
-      <screen x="0" y="0" width="1920" height="1080" />
-    </state>
-    <state width="1340" height="328" key="GridCell.Tab.1.right/0.0.1920.1080/1920.0.1920.1080@0.0.1920.1080" timestamp="1585750887378" />
-    <state x="599" y="365" key="com.intellij.ide.util.TipDialog" timestamp="1586933914592">
-      <screen x="0" y="0" width="1920" height="1080" />
-    </state>
-    <state x="599" y="365" key="com.intellij.ide.util.TipDialog/0.0.1920.1080/1920.0.1920.1080@0.0.1920.1080" timestamp="1586933914592" />
-    <state x="2519" y="365" key="com.intellij.ide.util.TipDialog/0.0.1920.1080/1920.0.1920.1080@1920.0.1920.1080" timestamp="1586425867679" />
-    <state x="630" y="220" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1585733070370">
-      <screen x="0" y="0" width="1920" height="1080" />
-    </state>
-    <state x="630" y="220" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/0.0.1920.1080/1920.0.1920.1080@0.0.1920.1080" timestamp="1585733070370" />
-    <state x="526" y="127" width="613" height="807" key="find.popup" timestamp="1585749640829">
-      <screen x="0" y="0" width="1920" height="1080" />
-    </state>
-    <state x="526" y="127" width="613" height="807" key="find.popup/0.0.1920.1080/1920.0.1920.1080@0.0.1920.1080" timestamp="1585749640829" />
-    <state x="885" y="265" key="search.everywhere.popup" timestamp="1585847069474">
-      <screen x="0" y="0" width="1920" height="1080" />
-    </state>
-    <state x="885" y="265" key="search.everywhere.popup/0.0.1920.1080/1920.0.1920.1080@0.0.1920.1080" timestamp="1585847069474" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/MovieEditor.py</url>
-          <line>78</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
-  </component>
-  <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/FACESCAPE$ScreenEditor.coverage" NAME="ScreenEditor Coverage Results" MODIFIED="1586449416451" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/FACESCAPE$MovieEditor.coverage" NAME="MovieEditor Coverage Results" MODIFIED="1586777687148" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/FACESCAPE$GuiManager.coverage" NAME="GuiManager Coverage Results" MODIFIED="1586876078668" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
->>>>>>> 12b52b87380a0d60018ddecc984c2e00bb04a8d1
+    <state x="599" y="351" key="com.intellij.ide.util.TipDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1586937170361" />
+    <state x="599" y="365" key="com.intellij.ide.util.TipDialog/0.0.1920.1080/1920.0.1920.1080@0.0.1920.1080" timestamp="1585121167473" />
   </component>
 </project>
