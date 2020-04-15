@@ -61,9 +61,11 @@ class MainFrame(Frame):
         optionFrame = Frame(self)
         optionFrame.pack(fill=NONE)
         self.optionNumber = IntVar()
-        option1Button = Radiobutton(optionFrame, text="프레임 새기기", value=1, variable=self.optionNumber)
+        option2Button = Radiobutton(optionFrame, text="얼굴 모자이크", value=1, variable=self.optionNumber)
+        option2Button.pack(side=LEFT, anchor=CENTER, padx=4, pady=1)
+        option1Button = Radiobutton(optionFrame, text="프레임 새기기", value=2, variable=self.optionNumber)
         option1Button.pack(side=LEFT, anchor=CENTER, padx=4, pady=1)
-        option2Button = Radiobutton(optionFrame, text="프레임 삭제", value=2, variable=self.optionNumber)
+        option2Button = Radiobutton(optionFrame, text="프레임 삭제", value=3, variable=self.optionNumber)
         option2Button.pack(side=LEFT, anchor=CENTER, padx=4, pady=1)
 
         # 실행 버튼
@@ -93,33 +95,28 @@ class MainFrame(Frame):
         self.savePath.set(path)
 
     def Activate(self):
+        checkFileMsg = me.checkFile(self.filePath.get())
+        checkDirMsg = me.checkDirectory(self.savePath.get())
 
-        if self.filePath.get() == "" or None:
-            self.SetProgressMessage("동영상 파일이 선택되지 않았습니다.")
+        if checkFileMsg is not None:
+            self.SetProgressMessage(checkFileMsg)
+
+        elif checkDirMsg is not None:
+            self.SetProgressMessage(checkDirMsg)
+
+        elif self.saveFileName.get() == "" or None:
+            self.SetProgressMessage("파일 이름이 설정되지 않았습니다.")
+
+        elif self.optionNumber.get() < 1 or self.optionNumber.get() > 3:
+            self.SetProgressMessage("옵션이 선택되지 않았습니다.")
 
         else:
-            checkMsg = me.checkFile(self.filePath.get())
-            
-            if checkMsg is not None:
-                self.SetProgressMessage(checkMsg)
-
-            elif self.savePath.get() == "" or None:
-                self.SetProgressMessage("저장 파일 위치가 설정되지 않았습니다.")
-
-            elif self.saveFileName.get() == "" or None:
-                self.SetProgressMessage("파일 이름이 설정되지 않았습니다.")
-
-            elif self.optionNumber.get() != 1 and 2:
-                print(self.optionNumber.get())
-                self.SetProgressMessage("옵션이 선택되지 않았습니다.")
-
-            else:
-                self.progressMessage.set("실행 중")
-                saveFilePath = self.savePath.get() + "/" + self.saveFileName.get()
-                extension = me.FindExtension(self.filePath.get())
-                me.Editing_Movie(self.filePath.get(), self.optionNumber.get(), saveFilePath, extension)
-                self.progressMessage.set("실행 완료")
-                os.startfile(self.savePath.get())
+            self.progressMessage.set("실행 중")
+            saveFilePath = self.savePath.get() + "/" + self.saveFileName.get()
+            extension = me.FindExtension(self.filePath.get())
+            me.Editing_Movie(self.filePath.get(), self.optionNumber.get(), saveFilePath, extension)
+            self.progressMessage.set("실행 완료")
+            os.startfile(self.savePath.get())
 
     def SetProgressMessage(self, msg):
         self.progressMessage.set(msg)

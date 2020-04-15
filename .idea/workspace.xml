@@ -2,7 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="da5a98cd-b470-4c2c-9cdc-1b0b7497ea95" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/real_opencv.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/real_opencv.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GuiManager.py" beforeDir="false" afterPath="$PROJECT_DIR$/GuiManager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MovieEditor.py" beforeDir="false" afterPath="$PROJECT_DIR$/MovieEditor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/face_detect.py" beforeDir="false" afterPath="$PROJECT_DIR$/face_detect.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,9 +33,40 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RunManager">
+    <configuration name="GuiManager" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="real_opencv" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/GuiManager.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
   </component>
   <component name="SvnConfiguration">
-    <configuration />
+    <configuration>C:\Users\ghwls\AppData\Roaming\Subversion</configuration>
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -40,6 +76,7 @@
       <option name="presentableId" value="Default" />
       <updated>1585121159701</updated>
       <workItem from="1585121163661" duration="43000" />
+      <workItem from="1586938139265" duration="5954000" />
     </task>
     <servers />
   </component>
@@ -47,10 +84,57 @@
     <option name="version" value="1" />
   </component>
   <component name="WindowStateProjectService">
+    <state x="623" y="136" key="#GuiManager" timestamp="1586938575283">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="623" y="136" key="#GuiManager/0.0.1920.1080/1920.0.1920.1080@0.0.1920.1080" timestamp="1586938575283" />
+    <state x="361" y="178" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1586938686552">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="361" y="178" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1080/1920.0.1920.1080@0.0.1920.1080" timestamp="1586938686552" />
+    <state x="527" y="117" key="CommitChangelistDialog2" timestamp="1586938512232">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="527" y="117" key="CommitChangelistDialog2/0.0.1920.1080/1920.0.1920.1080@0.0.1920.1080" timestamp="1586938512232" />
+    <state x="641" y="284" key="EnvironmentVariablesDialog" timestamp="1586938677324">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="641" y="284" key="EnvironmentVariablesDialog/0.0.1920.1080/1920.0.1920.1080@0.0.1920.1080" timestamp="1586938677324" />
+    <state x="776" y="352" key="FileChooserDialogImpl" timestamp="1586938751533">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="776" y="352" key="FileChooserDialogImpl/0.0.1920.1080/1920.0.1920.1080@0.0.1920.1080" timestamp="1586938751533" />
+    <state width="1345" height="264" key="GridCell.Tab.0.bottom" timestamp="1586970140450">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1345" height="264" key="GridCell.Tab.0.bottom/0.0.1920.1080/1920.0.1920.1080@0.0.1920.1080" timestamp="1586970140450" />
+    <state width="1345" height="264" key="GridCell.Tab.0.center" timestamp="1586970140450">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1345" height="264" key="GridCell.Tab.0.center/0.0.1920.1080/1920.0.1920.1080@0.0.1920.1080" timestamp="1586970140450" />
+    <state width="1345" height="264" key="GridCell.Tab.0.left" timestamp="1586970140450">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1345" height="264" key="GridCell.Tab.0.left/0.0.1920.1080/1920.0.1920.1080@0.0.1920.1080" timestamp="1586970140450" />
+    <state width="1345" height="264" key="GridCell.Tab.0.right" timestamp="1586970140450">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1345" height="264" key="GridCell.Tab.0.right/0.0.1920.1080/1920.0.1920.1080@0.0.1920.1080" timestamp="1586970140450" />
+    <state x="408" y="165" key="SettingsEditor" timestamp="1586938970250">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="408" y="165" key="SettingsEditor/0.0.1920.1080/1920.0.1920.1080@0.0.1920.1080" timestamp="1586938970250" />
     <state x="599" y="351" key="com.intellij.ide.util.TipDialog" timestamp="1586937170361">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="599" y="351" key="com.intellij.ide.util.TipDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1586937170361" />
     <state x="599" y="365" key="com.intellij.ide.util.TipDialog/0.0.1920.1080/1920.0.1920.1080@0.0.1920.1080" timestamp="1585121167473" />
+    <state x="712" y="440" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1586938523803">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="712" y="440" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1920.1080/1920.0.1920.1080@0.0.1920.1080" timestamp="1586938523803" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/FACESCAPE$GuiManager.coverage" NAME="GuiManager Coverage Results" MODIFIED="1586970140445" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

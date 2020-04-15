@@ -1,6 +1,8 @@
 import cv2
 from moviepy.editor import *
 
+import face_detect as fd
+
 # 파일 확장자 알아내기
 """
  파일 확장자는 가장 끝부분에 .***의 형식으로 되어 있다.
@@ -33,16 +35,28 @@ def FindExtension(filePath):
 
 def checkFile(filePath):
     try:
-        f = open(filePath, 'r')
-        extension = FindExtension(filePath)
-        # 파일이 없을 경우에는 괜찮지만 동영상 파일이 아닐 경우에는 제대로 작동하지 않을 수 있음.
-        if extension not in movieExtensionList:
-            return "동영상 파일이 아닙니다."
+        if os.path.isfile(filePath):
+            extension = FindExtension(filePath)
+            # 파일이 없을 경우에는 괜찮지만 동영상 파일이 아닐 경우에는 제대로 작동하지 않을 수 있음.
+            if extension not in movieExtensionList:
+                return "동영상 파일이 아닙니다."
+            else:
+                return None
         else:
-            return None
+            return "파일이 없습니다."
 
     except FileNotFoundError:
         return "파일이 없습니다."
+
+
+def checkDirectory(dirPath):
+    try:
+        if os.path.isdir(dirPath):
+            return None
+        else:
+            return "잘못된 경로입니다"
+    except FileNotFoundError:
+        return "잘못된 경로입니다."
 
 
 def Editing_Movie(filePath, option, fileName, extension):
@@ -75,11 +89,13 @@ def Editing_Movie(filePath, option, fileName, extension):
             break
 
         if option == 1:
+            output.write(fd.face_detect(frame))
+        elif option == 2:
             # 영상 프레임 매기기
             cv2.putText(frame, "Frame " + repr(number), loc, font, fontScale, black, thickness)
             output.write(frame)
 
-        elif option == 2:
+        elif option == 3:
             # 프레임 가리기(임시조건)
             if 30 < number < 80:
                 output.write(blackRec)
