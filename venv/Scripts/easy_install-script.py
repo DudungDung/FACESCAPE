@@ -1,4 +1,4 @@
-#!C:\Users\SANGSUN\PycharmProjects\FACESCAPE\venv\Scripts\python.exe
+#!D:\D드라이브저장\학교\3-1\소프\FACESCAPE\venv\Scripts\python.exe -x
 # EASY-INSTALL-ENTRY-SCRIPT: 'setuptools==40.8.0','console_scripts','easy_install'
 __requires__ = 'setuptools==40.8.0'
 import re
