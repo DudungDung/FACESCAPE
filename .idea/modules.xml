@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/real_opencv.iml" filepath="$PROJECT_DIR$/.idea/real_opencv.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/FACESCAPE.iml" filepath="$PROJECT_DIR$/.idea/FACESCAPE.iml" />
     </modules>
   </component>
 </project>
