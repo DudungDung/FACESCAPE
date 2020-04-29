@@ -22,8 +22,26 @@ def Crawling_Image(name, maxAmount):
     startNum = 0
     currentImageAmount = 1
 
+    dirName = "data/IMG/" + name + '/'
+
+    try:
+        # 이미 파일이 있을 경우 삭제하고 다시 다운로드
+        # 나중에 빠른 기계학습을 위해 파일 재다운 유무를 물어봄
+        if os.path.exists(dirName):
+            try:
+                shutil.rmtree(dirName)
+                # 삭제 후 바로 생성하면 충돌로 인해 문제가 생기기 때문에 1초 쉬어줌
+                time.sleep(1)
+                print("Remove Directory: " + dirName)
+            except OSError:
+                print("Error: Remove directory: " + dirName)
+        os.makedirs(dirName)
+        print("Create Directory: " + dirName)
+    except OSError:
+        print("Error: Creating directory: " + dirName)
+
     # 기본적으로 요청량만큼 받지만 이미지 다운로드에 실패하여 startNum이 너무 늘어날 경우 그냥 끝냄
-    while currentImageAmount <= maxAmount and startNum < maxAmount * 3:
+    while currentImageAmount <= maxAmount and startNum < maxAmount * 2:
         params = {
             "query": name,
             "where": "image",
@@ -34,24 +52,6 @@ def Crawling_Image(name, maxAmount):
         if htmlData.status_code == 200:
             soup = BeautifulSoup(htmlData.text, 'html.parser')
             imgs = soup.find_all('img', {'data-source': True})
-
-            dirName = "data/IMG/" + name + '/'
-
-            try:
-                # 이미 파일이 있을 경우 삭제하고 다시 다운로드
-                # 나중에 빠른 기계학습을 위해 파일 재다운 유무를 물어봄
-                if os.path.exists(dirName):
-                    try:
-                        shutil.rmtree(dirName)
-                        # 삭제 후 바로 생성하면 충돌로 인해 문제가 생기기 때문에 1초 쉬어줌
-                        time.sleep(1)
-                        print("Remove Directory: " + dirName)
-                    except OSError:
-                        print("Error: Remove directory: " + dirName)
-                os.makedirs(dirName)
-                print("Create Directory: " + dirName)
-            except OSError:
-                print("Error: Creating directory: " + dirName)
 
             for i in enumerate(imgs):
                 try:
@@ -67,8 +67,8 @@ def Crawling_Image(name, maxAmount):
                 except ValueError:
                     continue
         startNum += 50
+        
     '''
-    
     # 이미지 url https://www.google.com/search?q=검색내용&tbm=isch
     # 구글은 기본적으로 20개를 불러오는 방식을 이용함
     # 이 때 start 인자를 이용하면 시작지점을 정할 수 있어 20개단위로 여러번 작동시켜 원하는만큼 받아오도록 함
@@ -122,4 +122,4 @@ def Crawling_Image(name, maxAmount):
     '''
 
 
-Crawling_Image('휘인', 30)
+Crawling_Image('휘인', 300)
