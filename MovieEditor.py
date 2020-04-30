@@ -59,7 +59,7 @@ def checkDirectory(dirPath):
         return "잘못된 경로입니다."
 
 
-def Editing_Movie(filePath, option, fileName, extension):
+def Editing_Movie(filePath,  fileName, extension):
     movieData = cv2.VideoCapture(filePath)
 
     # 출력 결과 파일을 data폴더에 temp.* 파일로 폴더에 저장
@@ -88,19 +88,7 @@ def Editing_Movie(filePath, option, fileName, extension):
         if frame is None:
             break
 
-        if option == 1:
-            output.write(fd.face_detect(frame))
-        elif option == 2:
-            # 영상 프레임 매기기
-            cv2.putText(frame, "Frame " + repr(number), loc, font, fontScale, black, thickness)
-            output.write(frame)
-
-        elif option == 3:
-            # 프레임 가리기(임시조건)
-            if 30 < number < 80:
-                output.write(blackRec)
-            else:
-                output.write(frame)
+        output.write(fd.face_detect(frame))
 
         # 다음 프레임으로 진행
         number = number + 1
