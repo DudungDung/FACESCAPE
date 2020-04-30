@@ -5,11 +5,12 @@ import os
 
 import re
 
+notAllowedChar = '^[/%:*?"<>|.\\\\ ]+$'
+
 
 def Allow_Certain_Folder_Name(string):
     # 폴더에 넣을 수 없는 문자 및 .으로 이루어진 값들은 넘어감
-    charRe = re.compile(r'\%/:*?"<>|.')
-    st = charRe.search(string)
+    st = re.match(notAllowedChar, string)
     # 안에 잘못된값이 없을 경우
     if not bool(st):
         # 스페이스바로만 이루어진 값도 패스
@@ -26,6 +27,9 @@ def Crawling_Image(name, maxAmount):
     if not Allow_Certain_Folder_Name(name):
         return
 
+    for c in '^%:*?"<>|.\\':
+        name = name.replace(c, "")
+
     # 이미지 url https://search.naver.com/search.naver?where=image&query=검색이름
     # 네이버는 기본적으로 50개를 불러오는 방식을 이용함
     # 이 때 start 인자를 이용하면 시작지점을 정할 수 있어 50개단위로 여러번 작동시켜 원하는만큼 받아오도록 함
@@ -38,6 +42,15 @@ def Crawling_Image(name, maxAmount):
 
     startNum = 0
     currentImageAmount = 1
+
+    dirName = "data/IMG/" + name + '/'
+    try:
+        if not os.path.exists(dirName):
+            os.makedirs(dirName)
+            print("Create Directory: " + dirName)
+
+    except OSError:
+        print("Error: Creating directory: " + dirName)
 
     # 기본적으로 요청량만큼 받지만 이미지 다운로드에 실패하여 startNum이 너무 늘어날 경우 그냥 끝냄
     while currentImageAmount <= maxAmount and startNum < maxAmount * 2:
@@ -53,29 +66,20 @@ def Crawling_Image(name, maxAmount):
             imgs = soup.find_all('img', {'data-source': True})
             # 검색을 해서 만약에 검색결과가 안나오는 경우 실행을 안함            
             if imgs is not None:
-                dirName = "data/IMG/" + name + '/'
-                # 만약 폴더에 쓸 수 없는 이름일 경우 실행을 안함
-                try:
-                    if not os.path.exists(dirName):
-                        os.makedirs(dirName)
-                        print("Create Directory: " + dirName)
+                for i in enumerate(imgs):
+                    try:
+                        img = urlopen(i[1].attrs['data-source']).read()
+                        filename = dirName + name + str(currentImageAmount) + '.jpg'
+                        with open(filename, 'wb') as f:
+                            f.write(img)
+                            print(i[1].attrs['alt'])
+                            print("Img Save Success: " + str(currentImageAmount))
+                            currentImageAmount += 1
+                            if currentImageAmount > maxAmount:
+                                break
+                    except ValueError:
+                        continue
 
-                    for i in enumerate(imgs):
-                        try:
-                            img = urlopen(i[1].attrs['data-source']).read()
-                            filename = dirName + name + str(currentImageAmount) + '.jpg'
-                            with open(filename, 'wb') as f:
-                                f.write(img)
-                                print(i[1].attrs['alt'])
-                                print("Img Save Success: " + str(currentImageAmount))
-                                currentImageAmount += 1
-                                if currentImageAmount > maxAmount:
-                                    break
-                        except ValueError:
-                            continue
-
-                except OSError:
-                    print("Error: Creating directory: " + dirName)
         startNum += 50
 
     # 이미지 url https://www.google.com/search?q=검색내용&tbm=isch
