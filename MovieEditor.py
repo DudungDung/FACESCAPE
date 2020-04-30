@@ -15,7 +15,7 @@ import face_detect as fd
 movieExtensionList = ['.mkv', '.avi', '.mp4', '.mpg', '.flv', '.wmv']
 
 
-def codec_to_string(cc):
+def Codec_To_String(cc):
     cc = int(cc)
     codec_str = ""
     for i in range(4):
@@ -23,7 +23,7 @@ def codec_to_string(cc):
     return codec_str
 
 
-def FindExtension(filePath):
+def Find_Extension(filePath):
     ext = ''
     for c in filePath[::-1]:
         ext = ext + c
@@ -33,10 +33,10 @@ def FindExtension(filePath):
     return ext
 
 
-def checkFile(filePath):
+def Check_File(filePath):
     try:
         if os.path.isfile(filePath):
-            extension = FindExtension(filePath)
+            extension = Find_Extension(filePath)
             # 파일이 없을 경우에는 괜찮지만 동영상 파일이 아닐 경우에는 제대로 작동하지 않을 수 있음.
             if extension not in movieExtensionList:
                 return "동영상 파일이 아닙니다."
@@ -49,7 +49,7 @@ def checkFile(filePath):
         return "파일이 없습니다."
 
 
-def checkDirectory(dirPath):
+def Check_Directory(dirPath):
     try:
         if os.path.isdir(dirPath):
             return None
@@ -59,7 +59,7 @@ def checkDirectory(dirPath):
         return "잘못된 경로입니다."
 
 
-def Editing_Movie(filePath,  fileName, extension):
+def Edit_Movie(filePath,  fileName, extension):
     movieData = cv2.VideoCapture(filePath)
 
     # 출력 결과 파일을 data폴더에 temp.* 파일로 폴더에 저장
