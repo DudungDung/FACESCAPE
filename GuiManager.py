@@ -5,6 +5,7 @@ from tkinter import *
 from tkinter import filedialog
 
 import MovieEditor as me
+import WebCrawler as wc
 
 
 class MainFrame(Frame):
@@ -24,13 +25,24 @@ class MainFrame(Frame):
         emptyLabel = Label(emptyFrame, text="FACESCAPE", font=nameFont)
         emptyLabel.pack(pady=10)
 
+        # 크롤링
+        crawlFrame = Frame(self)
+        crawlFrame.pack(fill=NONE)
+        crawlDirLbl = Label(crawlFrame, text="검색 이름: ", width=10, height=1)
+        self.crawlName = StringVar()
+        crawlDirInput = Entry(crawlFrame, textvariable=self.crawlName, width=15)
+        crawlDirButton = Button(crawlFrame, text="Search", width=7, height=1, command=self.Search_Name, repeatdelay=100)
+        crawlDirLbl.pack(side=LEFT, padx=8, pady=10)
+        crawlDirInput.pack(side=LEFT, padx=4, pady=10)
+        crawlDirButton.pack(side=LEFT, padx=8, pady=10)
+
         # 파일 위치
         fileFrame = Frame(self)
         fileFrame.pack(fill=NONE)
         fileDirLbl = Label(fileFrame, text="파일 위치: ", width=10, height=1)
         self.filePath = StringVar()
         fileDirInput = Entry(fileFrame, textvariable=self.filePath, width=40)
-        fileDirButton = Button(fileFrame, text="Find", width=7, height=1, command=self.LoadMovieFile, repeatdelay=100)
+        fileDirButton = Button(fileFrame, text="Find", width=7, height=1, command=self.Load_Movie_File, repeatdelay=100)
         fileDirLbl.pack(side=LEFT, padx=8, pady=10)
         fileDirInput.pack(side=LEFT, padx=3, pady=10)
         fileDirButton.pack(side=LEFT, padx=4, pady=10)
@@ -41,7 +53,7 @@ class MainFrame(Frame):
         saveDirLbl = Label(saveFrame, text="저장 위치: ", width=10, height=1)
         self.savePath = StringVar()
         saveDirInput = Entry(saveFrame, textvariable=self.savePath, width=40)
-        saveDirButton = Button(saveFrame, text="Find", width=7, height=1, command=self.SetOutputDirectory,
+        saveDirButton = Button(saveFrame, text="Find", width=7, height=1, command=self.Set_Output_Directory,
                                repeatdelay=100)
         saveDirLbl.pack(side=LEFT, padx=8, pady=10)
         saveDirInput.pack(side=LEFT, padx=3, pady=10)
@@ -56,17 +68,6 @@ class MainFrame(Frame):
         saveNameInput = Entry(saveNameFrame, textvariable=self.saveFileName, width=20)
         saveNameLbl.pack(side=LEFT, padx=8, pady=10)
         saveNameInput.pack(side=LEFT, padx=3, pady=10)
-
-        # 옵션 선택
-        optionFrame = Frame(self)
-        optionFrame.pack(fill=NONE)
-        self.optionNumber = IntVar()
-        option2Button = Radiobutton(optionFrame, text="얼굴 모자이크", value=1, variable=self.optionNumber)
-        option2Button.pack(side=LEFT, anchor=CENTER, padx=4, pady=1)
-        option1Button = Radiobutton(optionFrame, text="프레임 새기기", value=2, variable=self.optionNumber)
-        option1Button.pack(side=LEFT, anchor=CENTER, padx=4, pady=1)
-        option2Button = Radiobutton(optionFrame, text="프레임 삭제", value=3, variable=self.optionNumber)
-        option2Button.pack(side=LEFT, anchor=CENTER, padx=4, pady=1)
 
         # 실행 버튼
         activateFrame = Frame(self)
@@ -83,42 +84,54 @@ class MainFrame(Frame):
                               bg='ghost white', width=50, height=30)
         progressLabel.pack(side=TOP, anchor=N, padx=5, pady=5)
 
-    def LoadMovieFile(self):
+    # 검색해서 이미지 저장하기
+    def Search_Name(self):
+        if not self.crawlName.get() == "" or None:
+            if wc.Allow_Certain_Folder_Name(self.crawlName.get()):
+                wc.Crawling_Image(self.crawlName.get(), 100)
+                crawlWindow = Toplevel(self.master)
+                crawlWindow.mainloop()
+            else:
+                self.Set_Progress_Message('검색어에 \%/:*?"<>|.를 넣을 수 없습니다.')
+        else:
+            self.Set_Progress_Message("검색어를 입력해주세요")
+
+    # 변환할 동영상 파일
+    def Load_Movie_File(self):
         path = filedialog.askopenfilename(
             initialdir="C:",
             filetypes=([('Video Files(mkv, avi, mp4, mpg, flv, wmv)', '*.mkv;*.avi;*.mp4;*.mpg;*.flv;*.wmv')]))
         self.filePath.set(path)
 
-    def SetOutputDirectory(self):
+    # 저장할 폴더
+    def Set_Output_Directory(self):
         path = filedialog.askdirectory(
             initialdir="C:")
         self.savePath.set(path)
 
+    # 실행시키기
     def Activate(self):
-        checkFileMsg = me.checkFile(self.filePath.get())
-        checkDirMsg = me.checkDirectory(self.savePath.get())
+        checkFileMsg = me.Check_File(self.filePath.get())
+        checkDirMsg = me.Check_Directory(self.savePath.get())
 
         if checkFileMsg is not None:
-            self.SetProgressMessage(checkFileMsg)
+            self.Set_Progress_Message(checkFileMsg)
 
         elif checkDirMsg is not None:
-            self.SetProgressMessage(checkDirMsg)
+            self.Set_Progress_Message(checkDirMsg)
 
-        elif self.saveFileName.get() == "" or None:
-            self.SetProgressMessage("파일 이름이 설정되지 않았습니다.")
-
-        elif self.optionNumber.get() < 1 or self.optionNumber.get() > 3:
-            self.SetProgressMessage("옵션이 선택되지 않았습니다.")
+        elif self.saveFileName.get() == " " or None:
+            self.Set_Progress_Message("파일 이름이 설정되지 않았습니다.")
 
         else:
             self.progressMessage.set("실행 중")
             saveFilePath = self.savePath.get() + "/" + self.saveFileName.get()
-            extension = me.FindExtension(self.filePath.get())
-            me.Editing_Movie(self.filePath.get(), self.optionNumber.get(), saveFilePath, extension)
+            extension = me.Find_Extension(self.filePath.get())
+            me.Edit_Movie(self.filePath.get(), saveFilePath, extension)
             self.progressMessage.set("실행 완료")
             os.startfile(self.savePath.get())
 
-    def SetProgressMessage(self, msg):
+    def Set_Progress_Message(self, msg):
         self.progressMessage.set(msg)
 
 
