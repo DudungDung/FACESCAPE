@@ -3,11 +3,28 @@ import requests
 from bs4 import BeautifulSoup
 import os
 
-import time
-import shutil
+import re
+
+
+def Allow_Certain_Folder_Name(string):
+    # 폴더에 넣을 수 없는 문자 및 .으로 이루어진 값들은 넘어감
+    charRe = re.compile(r'\%/:*?"<>|.')
+    st = charRe.search(string)
+    # 안에 잘못된값이 없을 경우
+    if not bool(st):
+        # 스페이스바로만 이루어진 값도 패스
+        string = string.replace(" ", "")
+        if string is "":
+            return False
+        else:
+            return True
+    else:
+        return False
 
 
 def Crawling_Image(name, maxAmount):
+    if not Allow_Certain_Folder_Name(name):
+        return
 
     # 이미지 url https://search.naver.com/search.naver?where=image&query=검색이름
     # 네이버는 기본적으로 50개를 불러오는 방식을 이용함
@@ -15,30 +32,12 @@ def Crawling_Image(name, maxAmount):
 
     # 원래 구글을 이용하려 하였으나 구글을 통해 받은 이미지 해상도가 너무 좋지 않아 네이버로 변경
     # 또한 네이버는 이미지 소스에 data-source가 있는 경우를 통해 제한할 경우 구글처럼 로고가 포함되는 경우가 없어 오류 조정에도 더 편함
-    # 한국 인물 특성상 네이버를 통해서 많은 이미지를 얻을 수 있기 때문에 네이버로 이용
+    # 한국 인물 특성상 네이버를 통해서도 많은 이미지를 얻을 수 있기 때문에 네이버로 이용
 
     naverUrl = "https://search.naver.com/search.naver?"
 
     startNum = 0
     currentImageAmount = 1
-
-    dirName = "data/IMG/" + name + '/'
-
-    try:
-        # 이미 파일이 있을 경우 삭제하고 다시 다운로드
-        # 나중에 빠른 기계학습을 위해 파일 재다운 유무를 물어봄
-        if os.path.exists(dirName):
-            try:
-                shutil.rmtree(dirName)
-                # 삭제 후 바로 생성하면 충돌로 인해 문제가 생기기 때문에 1초 쉬어줌
-                time.sleep(1)
-                print("Remove Directory: " + dirName)
-            except OSError:
-                print("Error: Remove directory: " + dirName)
-        os.makedirs(dirName)
-        print("Create Directory: " + dirName)
-    except OSError:
-        print("Error: Creating directory: " + dirName)
 
     # 기본적으로 요청량만큼 받지만 이미지 다운로드에 실패하여 startNum이 너무 늘어날 경우 그냥 끝냄
     while currentImageAmount <= maxAmount and startNum < maxAmount * 2:
@@ -52,27 +51,37 @@ def Crawling_Image(name, maxAmount):
         if htmlData.status_code == 200:
             soup = BeautifulSoup(htmlData.text, 'html.parser')
             imgs = soup.find_all('img', {'data-source': True})
-
-            for i in enumerate(imgs):
+            # 검색을 해서 만약에 검색결과가 안나오는 경우 실행을 안함            
+            if imgs is not None:
+                dirName = "data/IMG/" + name + '/'
+                # 만약 폴더에 쓸 수 없는 이름일 경우 실행을 안함
                 try:
-                    img = urlopen(i[1].attrs['data-source']).read()
-                    filename = dirName + name + str(currentImageAmount) + '.jpg'
-                    with open(filename, 'wb') as f:
-                        f.write(img)
-                        print(i[1].attrs['alt'])
-                        print("Img Save Success: " + str(currentImageAmount))
-                        currentImageAmount += 1
-                        if currentImageAmount > maxAmount:
-                            break
-                except ValueError:
-                    continue
+                    if not os.path.exists(dirName):
+                        os.makedirs(dirName)
+                        print("Create Directory: " + dirName)
+
+                    for i in enumerate(imgs):
+                        try:
+                            img = urlopen(i[1].attrs['data-source']).read()
+                            filename = dirName + name + str(currentImageAmount) + '.jpg'
+                            with open(filename, 'wb') as f:
+                                f.write(img)
+                                print(i[1].attrs['alt'])
+                                print("Img Save Success: " + str(currentImageAmount))
+                                currentImageAmount += 1
+                                if currentImageAmount > maxAmount:
+                                    break
+                        except ValueError:
+                            continue
+
+                except OSError:
+                    print("Error: Creating directory: " + dirName)
         startNum += 50
-        
-    '''
+
     # 이미지 url https://www.google.com/search?q=검색내용&tbm=isch
     # 구글은 기본적으로 20개를 불러오는 방식을 이용함
     # 이 때 start 인자를 이용하면 시작지점을 정할 수 있어 20개단위로 여러번 작동시켜 원하는만큼 받아오도록 함
-    
+    '''
     googleUrl = "https://www.google.com/search?"
 
     startNum = 0
@@ -120,6 +129,3 @@ def Crawling_Image(name, maxAmount):
 
         startNum += 20
     '''
-
-
-Crawling_Image('휘인', 300)
