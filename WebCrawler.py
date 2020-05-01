@@ -5,7 +5,7 @@ import os
 
 import re
 
-notAllowedChar = '^[/%:*?"<>|.\\\\ ]+$'
+notAllowedChar = '^[/:*?"<>|\\\\ ]+$'
 
 
 def Allow_Certain_Folder_Name(string):
@@ -13,21 +13,22 @@ def Allow_Certain_Folder_Name(string):
     st = re.match(notAllowedChar, string)
     # 안에 잘못된값이 없을 경우
     if not bool(st):
-        # 스페이스바로만 이루어진 값도 패스
-        string = string.replace(" ", "")
-        if string is "":
+        # 점 또는 스페이스바로만 이루어진 값도 패스
+        rpStr = string.replace(" ", "")
+        rpStr = rpStr.replace(".", "")
+        if rpStr is "":
             return False
-        else:
-            return True
     else:
         return False
+
+    return True
 
 
 def Crawling_Image(name, maxAmount):
     if not Allow_Certain_Folder_Name(name):
         return
 
-    for c in '^%:*?"<>|.\\':
+    for c in '/:*?"<>|\\':
         name = name.replace(c, "")
 
     # 이미지 url https://search.naver.com/search.naver?where=image&query=검색이름
