@@ -88,9 +88,9 @@ class MainFrame(Frame):
     def Search_Name(self):
         if not self.crawlName.get() == "" or None:
             if wc.Allow_Certain_Folder_Name(self.crawlName.get()):
-                wc.Crawling_Image(self.crawlName.get(), 100)
-                crawlWindow = Toplevel(self.master)
-                crawlWindow.mainloop()
+                wc.Crawling_Image(self.crawlName.get(), 300)
+                # crawlWindow = Toplevel(self.master)
+                # crawlWindow.mainloop()
             else:
                 self.Set_Progress_Message('검색어에 \%/:*?"<>|.를 넣을 수 없습니다.')
         else:
