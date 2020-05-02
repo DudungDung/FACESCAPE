@@ -2,8 +2,10 @@ import cv2
 import numpy as np
 from os import listdir
 from os.path import isfile, join
+from sklearn.cluster import DBSCAN
+import os
+import sys
 
-face_classifier = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 def face_detector(img, size = -1.5):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     faces = face_classifier.detectMultiScale(gray,1.3,5)
@@ -16,60 +18,65 @@ def face_detector(img, size = -1.5):
     return img,roi   #검출된 좌표에 사각 박스 그리고(img), 검출된 부위를 잘라(roi) 전달
 
 
-def face_extractor(img):
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    faces = face_classifier.detectMultiScale(gray, 1.3, 5)
-    #찾은 얼굴이 없으면 None으로 리턴
-    if faces is():
-        return None
-    #얼굴들이 있으면
-    for(x,y,w,h) in faces:
-        #해당 얼굴 크기만큼 cropped_face에 잘라 넣기
-        #근데... 얼굴이 2개 이상 감지되면??
-        #가장 마지막의 얼굴만 남을 듯
-        cropped_face = img[y:y+h, x:x+w]
-    #cropped_face 리턴
-    cropped_face = cv2.resize(cropped_face, (200, 200))
-    return cropped_face
+def face_extractor():
+    face_classifier = cv2.CascadeClassifier('haarcascade_frontalface_alt.xml')
+    count = 0
+    data_path = 'faces/'
+    onlyfiles = [f for f in listdir(data_path) if isfile(join(data_path, f))]
+    Training_Data, Labels = [], []
+    image_path = data_path + onlyfiles[0]
+    images = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+    Training_Data.append(np.asarray(images, dtype=np.uint8))
+    Labels.append(0)
+    for i, files in enumerate(onlyfiles):
+        image_path = data_path + onlyfiles[i]
+        image = cv2.imread(image_path, cv2.IMREAD_COLOR)
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        faces = face_classifier.detectMultiScale(gray, 1.3, 5)
+        Labelf = np.asarray(Labels, dtype=np.int32)
+        model = cv2.face.LBPHFaceRecognizer_create()
+        model.train(np.asarray(Training_Data), np.asarray(Labelf))
+        for(x,y,w,h) in faces:
+            cropped_face = image[y:y+h, x:x+w]
+            img = cv2.resize(cropped_face, (200, 200))
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            result = model.predict(img)
+            Labelf = np.asarray(Labels, dtype=np.int32)
+            model = cv2.face.LBPHFaceRecognizer_create()
+            model.train(np.asarray(Training_Data), np.asarray(Labelf))
+            if result[1] < 500:
+                confidence = int(100*(1-(result[1])/300))
+                if confidence > 73:
+                    img = cv2.resize(cropped_face, (200, 200))
+                    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                    count += 1
+                    file_name_path = 'facess/user' + str(count) + '.jpg'
+                    cv2.imwrite(file_name_path, img)
+                    Training_Data.append(np.asarray(img, dtype=np.uint8))
+                    Labels.append(count)
+            else:
+                print("Face not found")
 
 
-data_path = 'faces/'
-onlyfiles = [f for f in listdir(data_path) if isfile(join(data_path,f))]
-Training_Data, Labels = [], []
-
-count = 0
-for i, files in enumerate(onlyfiles):
-    image_path = data_path + onlyfiles[i]
-    image = cv2.imread(image_path, cv2.IMREAD_COLOR)
-    if face_extractor(image) is not None:
-        count += 1
-        img = cv2.resize(face_extractor(image), (200, 200))
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        file_name_path = 'facess/user' + str(count) + '.jpg'
-        cv2.imwrite(file_name_path, img)
-    else:
-        print("Face not found")
-
+face_extractor()
 
 data_path = 'facess/'
-onlyfiles = [f for f in listdir(data_path) if isfile(join(data_path,f))]
+onlyfiles = [f for f in listdir(data_path) if isfile(join(data_path, f))]
 Training_Data, Labels = [], []
-
-for i, files in enumerate(onlyfiles):
+for i, image in enumerate(onlyfiles):
     image_path = data_path + onlyfiles[i]
     images = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
-    if images is None:
-        continue
     Training_Data.append(np.asarray(images, dtype=np.uint8))
     Labels.append(i)
 if len(Labels) == 0:
     print("There is no data to train.")
     exit()
+
 Labels = np.asarray(Labels, dtype=np.int32)
 model = cv2.face.LBPHFaceRecognizer_create()
 model.train(np.asarray(Training_Data), np.asarray(Labels))
 print("Model Training Complete!!!!!")
-
+"""
 print(model)
 def FindExtension(str):
     ext = ''
@@ -151,3 +158,4 @@ while movieData.isOpened():
 movieData.release()
 output.release()
 cv2.destroyAllWindows()
+"""
