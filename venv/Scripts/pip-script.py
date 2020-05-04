@@ -1,4 +1,4 @@
-#!C:\Users\SANGSUN\PycharmProjects\FACESCAPE\venv\Scripts\python.exe
+#!D:\D드라이브저장\학교\3-1\소프\FACESCAPE\venv\Scripts\python.exe -x
 # EASY-INSTALL-ENTRY-SCRIPT: 'pip==19.0.3','console_scripts','pip'
 __requires__ = 'pip==19.0.3'
 import re
