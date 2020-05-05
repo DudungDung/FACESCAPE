@@ -6,6 +6,7 @@ from tkinter import filedialog
 
 import MovieEditor as me
 import WebCrawler as wc
+import face_extract as fe
 
 
 class MainFrame(Frame):
@@ -32,9 +33,11 @@ class MainFrame(Frame):
         self.crawlName = StringVar()
         crawlDirInput = Entry(crawlFrame, textvariable=self.crawlName, width=15)
         crawlDirButton = Button(crawlFrame, text="Search", width=7, height=1, command=self.Search_Name, repeatdelay=100)
+        crawlLearnButton = Button(crawlFrame, text="학습", width=7, height=1, command=self.Learning_Picture, repeatdelay=100)
         crawlDirLbl.pack(side=LEFT, padx=8, pady=10)
         crawlDirInput.pack(side=LEFT, padx=4, pady=10)
         crawlDirButton.pack(side=LEFT, padx=8, pady=10)
+        crawlLearnButton.pack(side=LEFT, padx=8, pady=10)
 
         # 파일 위치
         fileFrame = Frame(self)
@@ -95,6 +98,15 @@ class MainFrame(Frame):
                 self.Set_Progress_Message('검색어에 \%/:*?"<>|.를 넣을 수 없습니다.')
         else:
             self.Set_Progress_Message("검색어를 입력해주세요")
+
+    def Learning_Picture(self):
+        if not self.crawlName.get() == "" or None:
+            if wc.Allow_Certain_Folder_Name(self.crawlName.get()):
+                fe.face_extractor(self.crawlName.get())
+            else:
+                self.Set_Progress_Message('검색어에 \%/:*?"<>|.를 넣을 수 없습니다.')
+        else:
+            self.Set_Progress_Message('검색어를 입력해주세요.')
 
     # 변환할 동영상 파일
     def Load_Movie_File(self):
