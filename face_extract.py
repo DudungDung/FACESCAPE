@@ -6,6 +6,32 @@ from os import listdir
 from os.path import isfile, join
 
 
+def imread_utf8(img_path, flags):
+    try:
+        new_imgPath = np.fromfile(img_path, np.uint8)
+        img = cv2.imdecode(new_imgPath, flags)
+        return img
+    except Exception as e:
+        print(e)
+        return None
+
+
+def imwrite_utf8(img_path, img, params = None):
+    try:
+        ext = os.path.splitext(img_path)[1]
+        result, n = cv2.imencode(ext, img, params)
+
+        if result:
+            with open(img_path, mode='wb') as f:
+                n.tofile(f)
+            return True
+        else:
+            return False
+    except Exception as e:
+        print(e)
+        return None
+
+
 def face_extractor(name):  ## 호출시 이름 입력
     data_path = 'data/IMG/' + name + '/'
 
@@ -23,12 +49,13 @@ def face_extractor(name):  ## 호출시 이름 입력
         return
     Training_Data, Labels = [], []
     image_path = data_path + onlyfiles[0]  # 폴더 내의 사진의 1번은 특정이라 생각함
-    images = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)  # 한번 머신러닝
+    images = imread_utf8(image_path, cv2.IMREAD_GRAYSCALE)  # 한번 머신러닝
     Training_Data.append(np.asarray(images, dtype=np.uint8))
     Labels.append(0)
+
     for i, files in enumerate(onlyfiles):
         image_path = data_path + onlyfiles[i]
-        image = cv2.imread(image_path, cv2.IMREAD_COLOR)
+        image = imread_utf8(image_path, cv2.IMREAD_COLOR)
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         faces = face_classifier.detectMultiScale(gray, 1.3, 5)
         Labelf = np.asarray(Labels, dtype=np.int32)
@@ -44,9 +71,8 @@ def face_extractor(name):  ## 호출시 이름 입력
         except OSError:
             print("Error: Creating directory: " + dirName)
 
-        i = 1
         for (x, y, w, h) in faces:
-            print('Getting face ' + i)
+            print('Getting face ' + str(i + 1))
             cropped_face = image[y:y + h, x:x + w]
             img = cv2.resize(cropped_face, (200, 200))
             img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -59,7 +85,7 @@ def face_extractor(name):  ## 호출시 이름 입력
                     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
                     count += 1
                     file_name_path = dirName + 'Learning_IMG' + str(count) + '.jpg'
-                    cv2.imwrite(file_name_path, img)
+                    imwrite_utf8(file_name_path, img)
                     Training_Data.append(np.asarray(img, dtype=np.uint8))
                     Labels.append(count)
                     Labelf = np.asarray(Labels, dtype=np.int32)
