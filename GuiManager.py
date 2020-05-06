@@ -91,7 +91,7 @@ class MainFrame(Frame):
     def Search_Name(self):
         if not self.crawlName.get() == "" or None:
             if wc.Allow_Certain_Folder_Name(self.crawlName.get()):
-                wc.Crawling_Image(self.crawlName.get(), 300)
+                wc.Crawling_Image(self.crawlName.get(), 2000)
                 # crawlWindow = Toplevel(self.master)
                 # crawlWindow.mainloop()
             else:
@@ -139,7 +139,7 @@ class MainFrame(Frame):
             self.progressMessage.set("실행 중")
             saveFilePath = self.savePath.get() + "/" + self.saveFileName.get()
             extension = me.Find_Extension(self.filePath.get())
-            me.Edit_Movie(self.filePath.get(), saveFilePath, extension)
+            me.Edit_Movie(self.filePath.get(), saveFilePath, extension, self.crawlName.get())
             self.progressMessage.set("실행 완료")
             os.startfile(self.savePath.get())
 
