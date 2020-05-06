@@ -70,7 +70,7 @@ def Crawling_Image(name, maxAmount):
                 for i in enumerate(imgs):
                     try:
                         img = urlopen(i[1].attrs['data-source']).read()
-                        filename = dirName + 'IMG' + str(currentImageAmount) + '.jpg'
+                        filename = dirName + 'IMG' + f'{currentImageAmount:05}' + '.jpg'
                         with open(filename, 'wb') as f:
                             f.write(img)
                             print(i[1].attrs['alt'])
