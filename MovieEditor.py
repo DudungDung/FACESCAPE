@@ -59,7 +59,12 @@ def Check_Directory(dirPath):
         return "잘못된 경로입니다."
 
 
-def Edit_Movie(filePath,  fileName, extension):
+def Edit_Movie(filePath, fileName, extension, name):
+    model = cv2.face.LBPHFaceRecognizer_create()
+    modelDir = 'data/model/'
+    os.rename(modelDir + name + ".model", modelDir + "trainer.model")
+    model.read(modelDir + "trainer.model")
+    os.rename(modelDir + "trainer.model", modelDir + name + ".model")
     movieData = cv2.VideoCapture(filePath)
 
     # 출력 결과 파일을 data폴더에 temp.* 파일로 폴더에 저장
@@ -88,7 +93,7 @@ def Edit_Movie(filePath,  fileName, extension):
         if frame is None:
             break
 
-        output.write(fd.face_detect(frame))
+        output.write(fd.face_detect(frame, model))
 
         # 다음 프레임으로 진행
         number = number + 1
