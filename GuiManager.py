@@ -163,5 +163,8 @@ def MainGUI():
     root.resizable(False, False)
     root.mainloop()
 
+def main():
+    MainGUI()
 
-MainGUI()
+if __name__ ==  "__main__":
+    main()
