@@ -1,9 +1,8 @@
 import cv2
+import FaceDetector as fd
 
 
 def face_detect(image, model):
-    cascade_file = "data/haarcascade_frontalface_alt.xml"
-
     fontface = cv2.FONT_HERSHEY_SIMPLEX
     fontscale = 1
     fontcolor = (0, 0, 0)
@@ -14,9 +13,7 @@ def face_detect(image, model):
 
     image_gs = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    cascade = cv2.CascadeClassifier(cascade_file)
-
-    face_list = cascade.detectMultiScale(image_gs, scaleFactor=1.1, minNeighbors=1, minSize=(150, 150))
+    face_list = fd.find_faces(image)
 
     if len(face_list) > 0:
         print(face_list)

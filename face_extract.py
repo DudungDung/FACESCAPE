@@ -4,6 +4,7 @@ import numpy as np
 import os
 from os import listdir
 from os.path import isfile, join
+import FaceDetector as fd
 import time
 
 
@@ -41,8 +42,6 @@ def face_extractor(name):  ## 호출시 이름 입력
         print("사진 폴더가 존재하지 않습니다.")
         return
 
-    face_classifier = cv2.CascadeClassifier('data/haarcascade_frontalface_alt.xml')
-
     count = 0
     onlyfiles = [f for f in listdir(data_path) if isfile(join(data_path, f))]
 
@@ -64,17 +63,19 @@ def face_extractor(name):  ## 호출시 이름 입력
 
     skipped_Number = []
     train_confidence = 75
-    max_confidence = 85
+    max_confidence = 78
     end_Amount = 0
 
-    while count < 1000:
+    while count < 500:
         for i, files in enumerate(onlyfiles):
+            if count >= 500:
+                break
+
             if i in skipped_Number:
                 continue
             image_path = data_path + onlyfiles[i]
             image = imread_utf8(image_path, cv2.IMREAD_COLOR)
-            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            faces = face_classifier.detectMultiScale(gray, 1.3, 5)
+            faces = fd.find_faces(image_path)
 
             dirName = 'data/Learning/' + name + '/'
             try:
@@ -85,8 +86,11 @@ def face_extractor(name):  ## 호출시 이름 입력
             except OSError:
                 print("Error: Creating directory: " + dirName)
 
-            for (x, y, w, h) in faces:
+            for face in faces:
+                x, y, w, h = face['box']
                 print('Getting face from ' + image_path)
+                if x < 0 or y < 0:
+                    continue
                 cropped_face = image[y:y + h, x:x + w]
                 img = cv2.resize(cropped_face, (200, 200))
                 img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
