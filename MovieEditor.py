@@ -87,6 +87,7 @@ def Edit_Movie(filePath, fileName, extension, name):
     black = (0, 0, 0)
     thickness = 2
 
+    maxFrame = movieData.get(cv2.CAP_PROP_FRAME_COUNT)
     # 영상 읽기
     while movieData.isOpened():
         ret, frame = movieData.read()
@@ -97,6 +98,7 @@ def Edit_Movie(filePath, fileName, extension, name):
 
         # 다음 프레임으로 진행
         number = number + 1
+        print(f'Progress: {number} / {maxFrame}')
         # cv2.imshow('frame', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
