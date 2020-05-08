@@ -2,7 +2,7 @@ import cv2
 import tensorflow as tf
 import random
 import os
-import inception_resnet_v2
+import landmark
 import numpy as np
 
 #parameters
@@ -57,7 +57,7 @@ with tf.Graph().as_default() as g:
     istrain_placeholder = tf.placeholder(tf.bool)
     dropout_placeholder = tf.placeholder(tf.float32)
 
-    embedding, end_points = inception_resnet_v2(image_placeholder, istrain_placeholder, dropout_placeholder, embedding_size)
+    embedding, end_points = landmark(image_placeholder, istrain_placeholder, dropout_placeholder, embedding_size)
     prelogit = tf.layers.dense(embedding, num_class)
 
     with tf.name_scope('loss'):
