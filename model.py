@@ -1,121 +1,126 @@
-import cv2
 import tensorflow as tf
-import random
-import os
-import landmark
-import numpy as np
 
-#parameters
-IMG_H, IMG_W, IMG_C = 160, 160, 3
-embedding_size = 512
-num_class = 500
-learning_rate = 1e-3
-regularization_factor = 1e-2
-max_epoch = 200
-batch_size = 128
+class LandmarkModel(object):
+    def __init__(self, output_size):
+        self.output_size = output_size
+
+    def __call__(self, input_tensor):
+        inputs = tf.cast(input_tensor, tf.float32)
 
 
+        with tf.variable_scope('layer1'):
+            conv1 = tf.layers.conv2d(
+                inputs=inputs,
+                filters=32,
+                kernel_size=[3, 3],
+                strides=(1, 1),
+                padding='valid',
+                activation=tf.nn.relu)
 
-class loader():
-    def __init__(self, dir_name, img_h, img_w):
-        label = 0
-        self.index = 0
-        self.batch_list = []
-        self.cnt = 0
-        self.epoch = 0
-        self.img_h, self.img_w = img_h, img_w
-        for root, dirs, files in os.walk(dir_name):
-            if files:
-                for file_name in files:
-                    path = os.path.join(root, file_name)
-                    self.batch_list.append([path, label])
-                label += 1
-
-        self.size = len(self.batch_list)
-        random.shuffle(self.natch_list)
-
-    def batch(self, n):
-        batch_image, batch_label = [], []
-        for i in range(n):
-            image = cv2.imread(self.batch_list[self.index][0])
-            image = cv2.resize(image, (self.img_w, self.img_h))
-            batch_image.append(image)
-            batch_label.append(self.batch_list[self.index[1]])
-
-            self.index += 1
-            if self.index > self.size:
-                random.shuffle(self.batch_list)
-                self.epoch += 1
-                self.index = 0
-
-        return batch_image, batch_label
+            pool1 = tf.layers.max_pooling2d(
+                inputs=conv1,
+                pool_size=[2, 2],
+                strides=(2, 2),
+                padding='valid')
 
 
-with tf.Graph().as_default() as g:
-    image_placeholder = tf.placeholder(tf.float32, [None, IMG_H, IMG_W, IMG_C], name = 'image')
-    label_placeholder = tf.placeholder(tf.int32, [None], name = 'label')
-    istrain_placeholder = tf.placeholder(tf.bool)
-    dropout_placeholder = tf.placeholder(tf.float32)
+        with tf.variable_scope('layer2'):
+            conv2 = tf.layers.conv2d(
+                inputs=pool1,
+                filters=64,
+                kernel_size=[3, 3],
+                strides=(1, 1),
+                padding='valid',
+                activation=tf.nn.relu)
 
-    embedding, end_points = landmark(image_placeholder, istrain_placeholder, dropout_placeholder, embedding_size)
-    prelogit = tf.layers.dense(embedding, num_class)
+            conv3 = tf.layers.conv2d(
+                inputs=conv2,
+                filters=64,
+                kernel_size=[3, 3],
+                strides=(1, 1),
+                padding='valid',
+                activation=tf.nn.relu)
 
-    with tf.name_scope('loss'):
-        softmax_loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits = prelogit, labels = label_placeholder))
-        l2_regularization_loss = tf.add_n([tf.nn.l2_loss(var) for var in tf.get_collection('trainable_variables')])
-        total_loss = softmax_loss + regularization_factor * l2_regularization_loss
-
-    with tf.name_scope('optimizer'):
-        opt = tf.train.AdamOptimizer(learning_rate).minimize(total_loss)
-
-    with tf.name_scope('saver'):
-        saver = tf.train.Saver(max_to_keep = 1)
-
-    dir_image = 'C:/Users/sec/Desktop/공부/Software Project/test/n000659'
-    dir_model = 'model_face'
-    data_loader = loader(dir_image, IMG_H, IMG_W)
-
-
-    #training part
-
-with tf.Session(graph=g) as sess:
-    checkpoint = tf.train.latest_checkpoint(dir_model)
-    if checkpoint:
-        saver = tf.train.Saver()
-        saver.restore(sess, checkpoint)
-    else:
-        sess.run(tf.global_variables_initializer())
-
-    while data_loader.epoch < max_epoch:
-        batch_image, batch_label = data_loader.batch(batch_size)
-        feed_dict = {
-            image_placeholder : batch_image,
-            label_placeholder : batch_label,
-            istrain_placeholder : True,
-            dropout_placeholder : 0.8
-        }
-        _, loss = sess.run([opt, total_loss], feed_dict=feed_dict)
-        print(loss)
-
-    saver.save(sess, os.path.join(dir_model, 'model.ckpt'))
+            pool2 = tf.layers.max_pooling2d(
+                inputs=conv3,
+                pool_size=[2, 2],
+                strides=(2, 2),
+                padding='valid')
 
 
-#test part
-with tf.Session(graph=g) as sess:
-    checkpoint = tf.train.latest_checkpoint(dir_model)
-    saver.restore(sess, checkpoint)
+        with tf.variable_scope('layer3'):
+            conv4 = tf.layers.conv2d(
+                inputs=pool2,
+                filters=64,
+                kernel_size=[3, 3],
+                strides=(1, 1),
+                padding='valid',
+                activation=tf.nn.relu)
 
-    face1 = cv2.resize(cv2.imread('0001_01.jpg'), (IMG_W, IMG_H))
-    face2 = cv2.resize(cv2.imread('0002_01.jpg'), (IMG_W, IMG_H))
+            conv5 = tf.layers.conv2d(
+                inputs=conv4,
+                filters=64,
+                kernel_size=[3, 3],
+                strides=(1, 1),
+                padding='valid',
+                activation=tf.nn.relu)
 
-    feed_dict = {
-        image_placeholder : [face1, face2],
-        istrain_placeholder : False,
-        dropout_placeholder : 1
-    }
-    embedding_vector = sess.run(embedding, feed_dict = feed_dict)
+            pool3 = tf.layers.max_pooling2d(
+                inputs=conv5,
+                pool_size=[2, 2],
+                strides=(2, 2),
+                padding='valid')
 
-    prod_sum = np.sum(np.multiply(embedding_vector[0], embedding_vector[1]))
-    norm0 = np.sqrt(np.sum(embedding_vector[0] ** 2))
-    norm1 = np.sqrt(np.sum(embedding_vector[1] ** 2))
-    inner_product = prod_sum / norm0 / norm1
+
+        with tf.variable_scope('layer4'):
+            conv6 = tf.layers.conv2d(
+                inputs=pool3,
+                filters=128,
+                kernel_size=[3, 3],
+                strides=(1, 1),
+                padding='valid',
+                activation=tf.nn.relu)
+
+            conv7 = tf.layers.conv2d(
+                inputs=conv6,
+                filters=128,
+                kernel_size=[3, 3],
+                strides=(1, 1),
+                padding='valid',
+                activation=tf.nn.relu)
+
+            pool4 = tf.layers.max_pooling2d(
+                inputs=conv7,
+                pool_size=[2, 2],
+                strides=(1, 1),
+                padding='valid')
+
+
+        with tf.variable_scope('layer5'):
+            conv8 = tf.layers.conv2d(
+                inputs=pool4,
+                filters=256,
+                kernel_size=[3, 3],
+                strides=(1, 1),
+                padding='valid',
+                activation=tf.nn.relu)
+
+
+        with tf.variable_scope('layer6'):
+            flatten = tf.layers.flatten(inputs=conv8)
+
+            dense1 = tf.layers.dense(
+                inputs=flatten,
+                units=1024,
+                activation=tf.nn.relu,
+                use_bias=True)
+
+            logits = tf.layers.dense(
+                inputs=dense1,
+                units=self.output_size,
+                activation=None,
+                use_bias=True,
+                name="logits")
+            logits = tf.identity(logits, 'final_dense')
+
+        return logits
