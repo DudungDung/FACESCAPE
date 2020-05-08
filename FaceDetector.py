@@ -1,36 +1,10 @@
 # face detection with mtcnn on a photograph
 from matplotlib import pyplot
 from mtcnn.mtcnn import MTCNN
-from matplotlib.patches import Rectangle
-from matplotlib.patches import Circle
+
+detector = MTCNN()
+print("Detector Initialize")
 
 
-# draw an image with detected objects
-def find_faces(filename):
-    pixels = pyplot.imread(filename)
-    # create the detector, using default weights
-    detector = MTCNN()
-    # detect faces in the image
-    faces = detector.detect_faces(pixels)
-    return faces
-    '''
-    # load the image
-    data = pyplot.imread(filename)
-    # plot the image
-    pyplot.imshow(data)
-    # get the context for drawing boxes
-    ax = pyplot.gca()
-    # plot each box
-    for result in faces:
-        # get coordinates
-        x, y, width, height = result['box']
-        # create the shape
-        rect = Rectangle((x, y), width, height, fill=False, color='red')
-        # draw the box
-        ax.add_patch(rect)
-        # draw the dots on eyes nose ..
-        for key, value in result['keypoints'].items():
-            # create and draw dot
-            dot = Circle(value, radius=2, color='red')
-            ax.add_patch(dot)
-    '''
+def detect_faces(pixels):
+    return detector.detect_faces(pixels)

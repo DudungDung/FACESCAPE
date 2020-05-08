@@ -4,7 +4,7 @@ import numpy as np
 import os
 from os import listdir
 from os.path import isfile, join
-import FaceDetector as fd
+import face_detect as fd
 import time
 
 
@@ -63,7 +63,7 @@ def face_extractor(name):  ## 호출시 이름 입력
 
     skipped_Number = []
     train_confidence = 75
-    max_confidence = 78
+    max_confidence = 80
     end_Amount = 0
 
     while count < 500:
