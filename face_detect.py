@@ -1,5 +1,6 @@
+import numpy as np
 import cv2
-import FaceDetector as detector
+import FaceDetector as models
 from matplotlib import pyplot
 from matplotlib.patches import Rectangle
 from matplotlib.patches import Circle
@@ -21,7 +22,7 @@ def face_detect(image, model):
         for face in face_list:
             x, y, w, h = face['box']
             if x <= 0 or y <= 0:
-                print("Pass This Frame")
+                print("Pass This Face")
                 continue
             # print(x, y, w, h);
             cropped_face = image[y:y + h, x:x + w]
@@ -31,8 +32,8 @@ def face_detect(image, model):
             if result[1] < 500:
                 confidence = int(100 * (1 - (result[1]) / 300))
                 cv2.rectangle(image, (x, y), (x + w, y + h), color, thickness=3)
-                cv2.rectangle(image, (x, y + h), (x + w, y + 3), color, thickness=3)
-                cv2.putText(image, str(confidence), (x, y + h + 2), fontface, fontscale, fontcolor, thick)
+                cv2.rectangle(image, (x, y + h), (x + w, y + h + 15), color, thickness=-1)
+                cv2.putText(image, str(confidence), (x, y + h + 15), fontface, fontscale, fontcolor, thick)
             # face_img = image[(x*7)//5:y+(h*4)//5, (x*7)//5:x+(w*4)//5];
             ''' 모자이크 처리 부분
             face_img = cv2.resize(face_img, (w // 20, h // 20));
@@ -49,10 +50,19 @@ def face_detect(image, model):
     return image
 
 # draw an image with detected objects
-def find_faces(filename):
-    pixels = pyplot.imread(filename)
+def find_faces(filepath):
+    img = cv2.imread(filepath)
+    (h, w) = img.shape[:2]
+    blob = cv2.dnn.blobFromImage(cv2.resize(img, (200,200)), 1.0, (200,200), (104.0, 177.0, 123.0))
+
+    models.dnnModel.setInput(blob)
+    detections = models.dnnModel.forward()
+
+    return detections
+
+    pixels = pyplot.imread(filepath)
     # detect faces in the image path
-    faces = detector.detect_faces(pixels)
+    faces = models.detector.detect_faces(pixels)
     return faces
     '''
     # load the image
@@ -79,5 +89,5 @@ def find_faces(filename):
 
 def find_faces_img(img):
     # detect faces in the image
-    faces = detector.detect_faces(img)
+    faces = models.detector.detect_faces(img)
     return faces
