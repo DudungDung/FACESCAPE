@@ -44,8 +44,6 @@ def Recog_Face(name):
     for i, imgPath in enumerate(imagePaths):
         print(f"Process {i+1}/{len(imagePaths)}")
 
-        filename = imgPath.split(os.path.sep)[-2]
-
         image = imread_utf8(imgPath, cv2.IMREAD_COLOR)
         rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
@@ -64,6 +62,35 @@ def Recog_Face(name):
             knownEncoding.append(en)
             knownNames.append(name)
 
+    '''
+    dirPath = "data/IMG/Human"
+    learnPath = "data/Learning/Human"
+    imagePaths = list(paths.list_images(dirPath))
+
+    knownEncoding = []
+    knownNames = []
+
+    for i, imgPath in enumerate(imagePaths):
+        print(f"Process {i + 1}/{len(imagePaths)}")
+
+        image = imread_utf8(imgPath, cv2.IMREAD_COLOR)
+        rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        boxes = face_recognition.face_locations(rgb, model="hog")
+        for box in boxes:
+            print(box)
+            count += 1
+            y, w, h, x = box
+            cropped_face = image[y:h, x:w]
+            file_name_path = learnPath + "/" + 'Learning_IMG' + f'{count:04}' + '.jpg'
+            imwrite_utf8(file_name_path, cropped_face)
+
+        encodings = face_recognition.face_encodings(rgb, boxes)
+
+        for en in encodings:
+            knownEncoding.append(en)
+            knownNames.append("Human")
+    '''
     print("Serializing encodings")
     data = {"encodings": knownEncoding, "names": knownNames}
     f = open(f"data/model/{name}.model", "wb")

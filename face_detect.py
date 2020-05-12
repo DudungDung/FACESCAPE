@@ -65,18 +65,55 @@ def face_detect(image, model):
     '''
     # MTCNN에서 얼굴 찾기
     face_mtcnn_list = find_faces_mtcnn(image)
+    start = time.time()
     if len(face_mtcnn_list) > 0:
         color = (255, 255, 0)
         for face in face_mtcnn_list:
             x, y, w, h = face['box']
-            cv2.rectangle(image, (x, y), (x + w, y + h), color, thickness=3)
-            cv2.putText(image, "MTCNN", (x, y + h), fontface, fontscale, color, thick)
+            
+            box = (y, x+w, y+h, x)
+            boxes = {box}
+            
+            rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            encodings = face_recognition.face_encodings(rgb, boxes)
+
+            name = "unknown"
+            for encoding in encodings:
+                # attempt to match each face in the input image to our known
+                # encodings
+                matches = face_recognition.compare_faces(model["encodings"],
+                                                         encoding, tolerance=0.6)
+                if True in matches:
+                    # find the indexes of all matched faces then initialize a
+                    # dictionary to count the total number of times each face
+                    # was matched
+                    matchedIdxs = [i for (i, b) in enumerate(matches) if b]
+                    counts = {}
+
+                    # loop over the matched indexes and maintain a count for
+                    # each recognized face face
+                    for n in matchedIdxs:
+                        name = model["names"][n]
+                        counts[name] = counts.get(name, 0) + 1
+
+                    # determine the recognized face with the largest number
+                    # of votes (note: in the event of an unlikely tie Python
+                    # will select first entry in the dictionary)
+                    name = max(counts, key=counts.get)
+
+            if name is not "unknown":
+                color = (0, 255, 0)
+                cv2.rectangle(image, (x, y), (x+w, y+h), color, thickness=3)
+
+    end = time.time()
+    print("Face Matches: ", format(end - start, '.2f'))
     '''
             
     # DNN에서 얼굴 찾기
     detections_dnn, h, w = find_faces_dnn(image)
     dnn_face_amount = 0
     color = (255, 0, 0)
+    start = time.time()
     for i in range(0, detections_dnn.shape[2]):
         confidence = detections_dnn[0, 0, i, 2]
         if confidence > 0.15:
@@ -115,8 +152,10 @@ def face_detect(image, model):
 
             if name is not "unknown":
                 color = (0, 255, 0)
-            cv2.rectangle(image, (sx, sy), (ex, ey), color, thickness=3)
-            cv2.putText(image, name, (sx, ey), fontface, fontscale, color, thick)
+                cv2.rectangle(image, (sx, sy), (ex, ey), color, thickness=3)
+                cv2.putText(image, name, (sx, ey), fontface, fontscale, color, thick)
+    end = time.time()
+    print("Face Matches: ", format(end - start, '.2f'))
 
     '''
     for i in range(0, detections_dnn.shape[2]):
