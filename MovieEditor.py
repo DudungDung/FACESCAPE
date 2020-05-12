@@ -2,6 +2,7 @@ import cv2
 from moviepy.editor import *
 
 import face_detect as fd
+import pickle
 
 # 파일 확장자 알아내기
 """
@@ -60,11 +61,7 @@ def Check_Directory(dirPath):
 
 
 def Edit_Movie(filePath, fileName, extension, name):
-    model = cv2.face.LBPHFaceRecognizer_create()
-    modelDir = 'data/model/'
-    os.rename(modelDir + name + ".model", modelDir + "trainer.model")
-    model.read(modelDir + "trainer.model")
-    os.rename(modelDir + "trainer.model", modelDir + name + ".model")
+    model = pickle.loads(open(f"data/model/{name}.model", "rb").read())
     movieData = cv2.VideoCapture(filePath)
 
     # 출력 결과 파일을 data폴더에 temp.* 파일로 폴더에 저장

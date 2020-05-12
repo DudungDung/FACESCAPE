@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import FaceDetector as models
+import face_recognition
 import imutils
 
 import time
@@ -14,7 +15,6 @@ def face_detect(image, model):
 
     # image = cv2.imread(image_file)
     # print(image)
-
 
     '''
     # CNN에서 얼굴 찾기
@@ -30,6 +30,7 @@ def face_detect(image, model):
         cv2.putText(image, f"CNN{int(face.confidence)}", (x, y + h), fontface, fontscale, color, thick)
     '''
 
+    '''
     # HOG에서 얼굴 찾기
     face_hog_list = find_faces_hog(image)
     if len(face_hog_list) > 0:
@@ -42,8 +43,8 @@ def face_detect(image, model):
             h = face.bottom() - y
             cv2.rectangle(image, (x, y), (x + w, y + h), color, thickness=3)
             cv2.putText(image, "HOG", (x, y + h), fontface, fontscale, color, thick)
-            # print(x, y, w, h);
             '''
+    '''
             cropped_face = image[y:y + h, x:x + w]
             face_img = cv2.resize(cropped_face, (200, 200))
             face_img = cv2.cvtColor(face_img, cv2.COLOR_BGR2GRAY)
@@ -60,8 +61,8 @@ def face_detect(image, model):
 
             adr = input("저장주소 :: ")
             cv2.imwrite(adr, image)
-            '''
-
+    '''
+    '''
     # MTCNN에서 얼굴 찾기
     face_mtcnn_list = find_faces_mtcnn(image)
     if len(face_mtcnn_list) > 0:
@@ -70,11 +71,54 @@ def face_detect(image, model):
             x, y, w, h = face['box']
             cv2.rectangle(image, (x, y), (x + w, y + h), color, thickness=3)
             cv2.putText(image, "MTCNN", (x, y + h), fontface, fontscale, color, thick)
+    '''
             
     # DNN에서 얼굴 찾기
     detections_dnn, h, w = find_faces_dnn(image)
     dnn_face_amount = 0
-    color = (0, 255, 255)
+    color = (255, 0, 0)
+    for i in range(0, detections_dnn.shape[2]):
+        confidence = detections_dnn[0, 0, i, 2]
+        if confidence > 0.15:
+            dnn_face_amount += 1
+            dnn_box = detections_dnn[0, 0, i, 3:7] * np.array([w, h, w, h])
+            sx, sy, ex, ey = dnn_box.astype("int")
+            box = (sy, ex, ey, sx)
+            boxes = {box}
+
+            rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            encodings = face_recognition.face_encodings(rgb, boxes)
+
+            name = "unknown"
+            for encoding in encodings:
+                # attempt to match each face in the input image to our known
+                # encodings
+                matches = face_recognition.compare_faces(model["encodings"],
+                                                         encoding, tolerance=0.5)
+                if True in matches:
+                    # find the indexes of all matched faces then initialize a
+                    # dictionary to count the total number of times each face
+                    # was matched
+                    matchedIdxs = [i for (i, b) in enumerate(matches) if b]
+                    counts = {}
+
+                    # loop over the matched indexes and maintain a count for
+                    # each recognized face face
+                    for n in matchedIdxs:
+                        name = model["names"][n]
+                        counts[name] = counts.get(name, 0) + 1
+
+                    # determine the recognized face with the largest number
+                    # of votes (note: in the event of an unlikely tie Python
+                    # will select first entry in the dictionary)
+                    name = max(counts, key=counts.get)
+
+            if name is not "unknown":
+                color = (0, 255, 0)
+            cv2.rectangle(image, (sx, sy), (ex, ey), color, thickness=3)
+            cv2.putText(image, name, (sx, ey), fontface, fontscale, color, thick)
+
+    '''
     for i in range(0, detections_dnn.shape[2]):
         confidence = detections_dnn[0, 0, i, 2]
         if confidence > 0.15:
@@ -83,10 +127,10 @@ def face_detect(image, model):
             sx, sy, ex, ey = box.astype("int")
             cv2.rectangle(image, (sx, sy), (ex, ey), color, thickness=3)
             cv2.putText(image, f"DNN {int(confidence * 100)}", (sx, ey), fontface, fontscale, color, thick)
-
+    '''
     # print(f"Find {len(face_cnn_list)} on CNN")
-    print(f"Find {len(face_hog_list)} on HOG")
-    print(f"Find {len(face_mtcnn_list)} on MTCNN")
+    # print(f"Find {len(face_hog_list)} on HOG")
+    # print(f"Find {len(face_mtcnn_list)} on MTCNN")
     print(f"Find {dnn_face_amount} on DNN confidence > 15%")
 
     viewed_img = cv2.resize(image, dsize=(0, 0), fx=0.5, fy=0.5)
