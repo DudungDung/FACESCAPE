@@ -4,6 +4,7 @@ from moviepy.editor import *
 import face_clustering as fc
 import face_detect as fd
 import pickle
+import time
 
 # 파일 확장자 알아내기
 """
@@ -76,6 +77,7 @@ def Edit_Movie(filePath, fileName, extension, name):
     number = 1
 
     maxFrame = movieData.get(cv2.CAP_PROP_FRAME_COUNT)
+    start = time.time()
     while movieData.isOpened():
         ret, frame = movieData.read()
         if frame is None:
@@ -86,6 +88,8 @@ def Edit_Movie(filePath, fileName, extension, name):
             os.makedirs(dirName)
         cv2.imwrite(dirName + "IMG" + f"{number:04}" + ".jpg", frame)
         number += 1
+    end = time.time()
+    print(f"Time to save video: {end - start: .2f}s")
 
     fc.Img_clustering()
     return

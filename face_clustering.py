@@ -1,4 +1,6 @@
 import os
+import time
+
 import dlib
 import numpy as np
 from os import listdir
@@ -91,26 +93,29 @@ def Img_clustering():
     onlyfiles = [f for f in listdir(dirPath) if isfile(join(dirPath, f))]
 
     descriptors = []
-    imgs = []
+    shapes = []
 
     for i, img in enumerate(onlyfiles):
-        print(f"Find Face {i+1}/{len(onlyfiles)}")
 
         imgPath = dirPath + onlyfiles[i]
         img = dlib.load_rgb_image(imgPath)
 
+        if i != 0:
+            end = time.time()
+            print(f"Find Face {i}/{len(onlyfiles)}: {end - start: .2f}s")
+        start = time.time()
         faces, h, w = fd.find_faces_dnn(img)
-        for i in range(0, faces.shape[2]):
-            confidence = faces[0, 0, i, 2]
+        for j in range(0, faces.shape[2]):
+            confidence = faces[0, 0, j, 2]
             if confidence > 0.5:
-                dnn_box = faces[0, 0, i, 3:7] * np.array([w, h, w, h])
+                dnn_box = faces[0, 0, j, 3:7] * np.array([w, h, w, h])
                 sx, sy, ex, ey = dnn_box.astype("int")
                 box = dlib.rectangle(left=sx, top=sy, right=ex, bottom=ey)
                 print(box)
                 shape = predictor(img, box)
-                face_descrpitor = faceRec.compute_face_descriptor(img, shape)
-                descriptors.append(face_descrpitor)
-                imgs.append((img, shape))
+                face_descriptor = faceRec.compute_face_descriptor(img, shape)
+                descriptors.append(face_descriptor)
+                shapes.append((i, shape))
 
     labels = dlib.chinese_whispers_clustering(descriptors, 0.5)
     num_classes = len(set(labels))
@@ -132,13 +137,17 @@ def Img_clustering():
 
     # Save the extracted faces
     print("Saving faces in largest cluster to output folder...")
-    for i, index in enumerate(labels):
-        print(f"Clustering Face {i} / {len(labels)}")
-        img, shape = imgs[i]
-        dirPath = dirName + str(index) + '/'
-        if not os.path.isdir(dirPath):
-            os.makedirs(dirPath)
-        file_path = os.path.join(dirPath, "face_" + str(i))
+    start = time.time()
+    for i, label in enumerate(labels):
+        print(f"Clustering Face {i+1} / {len(labels)}")
+        index, shape = shapes[i]
+        imgPath = dirPath + onlyfiles[index]
+        img = dlib.load_rgb_image(imgPath)
+        path = dirName + str(label) + '/'
+        if not os.path.isdir(path):
+            os.makedirs(path)
+        file_path = os.path.join(path, "face_" + str(i))
         # The size and padding arguments are optional with default size=150x150 and padding=0.25
         dlib.save_face_chip(img, shape, file_path, size=150, padding=0.25)
-
+    end = time.time()
+    print(f"Cluster All Image: {end - start: .2f}")
