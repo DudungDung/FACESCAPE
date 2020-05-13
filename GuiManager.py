@@ -6,7 +6,7 @@ from tkinter import filedialog
 
 import MovieEditor as me
 import WebCrawler as wc
-import face_extract as fe
+import face_clustering as fc
 import face_recog as fr
 
 

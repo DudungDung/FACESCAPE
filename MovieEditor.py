@@ -1,6 +1,7 @@
 import cv2
 from moviepy.editor import *
 
+import face_clustering as fc
 import face_detect as fd
 import pickle
 
@@ -61,7 +62,7 @@ def Check_Directory(dirPath):
 
 
 def Edit_Movie(filePath, fileName, extension, name):
-    model = pickle.loads(open(f"data/model/{name}.model", "rb").read())
+    # model = pickle.loads(open(f"data/model/{name}.model", "rb").read())
     movieData = cv2.VideoCapture(filePath)
 
     # 출력 결과 파일을 data폴더에 temp.* 파일로 폴더에 저장
@@ -72,19 +73,25 @@ def Edit_Movie(filePath, fileName, extension, name):
     tempFileName = "data/Temp" + extension
     output = cv2.VideoWriter(tempFileName, videoCodec, fps, (int(width), int(height)))
 
-    # 프레임가리는 사각형
-    loadedImg = cv2.imread("data/BlackImage.jpg")
-    blackRec = cv2.resize(loadedImg, (int(width), (int(height))))
-
-    # 테스트용 putText 속성들
     number = 1
-    loc = (30, 50)
-    font = cv2.FONT_HERSHEY_SIMPLEX
-    fontScale = 1
-    black = (0, 0, 0)
-    thickness = 2
 
     maxFrame = movieData.get(cv2.CAP_PROP_FRAME_COUNT)
+    while movieData.isOpened():
+        ret, frame = movieData.read()
+        if frame is None:
+            break
+        print(f"Save Frame in Video {number} / {maxFrame}")
+        dirName = "data/IMG/Video/"
+        if not os.path.exists(dirName):
+            os.makedirs(dirName)
+        cv2.imwrite(dirName + "IMG" + f"{number:04}" + ".jpg", frame)
+        number += 1
+
+    fc.Img_clustering()
+    return
+
+    maxFrame = movieData.get(cv2.CAP_PROP_FRAME_COUNT)
+    movieData = cv2.VideoCapture(filePath)
     # 영상 읽기
     while movieData.isOpened():
         ret, frame = movieData.read()
