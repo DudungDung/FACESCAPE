@@ -105,8 +105,8 @@ def Edit_Movie(filePath, fileName, extension, name):
         print(f"Save Frame in Video {number} / {maxFrame}")
         cv2.imwrite(dirName + "IMG" + f"{number:04}" + ".jpg", frame)
         number += 1
-        if number > 1000:
-            break
+        # if number > 1000:
+        #   break
     end = time.time()
     print(f"Time to save video: {end - start: .2f}s")
 
