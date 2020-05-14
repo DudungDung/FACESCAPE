@@ -84,7 +84,7 @@ def Crawling_Image(name, maxAmount):
 
         startNum += 50
 
-    fc.clustering(name)
+    fc.sk_clustering(dirName)
     # 이미지 url https://www.google.com/search?q=검색내용&tbm=isch
     # 구글은 기본적으로 20개를 불러오는 방식을 이용함
     # 이 때 start 인자를 이용하면 시작지점을 정할 수 있어 20개단위로 여러번 작동시켜 원하는만큼 받아오도록 함

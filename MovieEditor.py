@@ -92,10 +92,11 @@ def Edit_Movie(filePath, fileName, extension, name):
             os.chmod(dirName + files[i], stat.S_IWUSR)
             os.remove(dirName + files[i])
         os.rmdir(dirName)
-    os.makedirs(dirName)
     end = time.time()
     print(f"Remove All Files :{end - start}s")
     '''
+    if not os.path.exists(dirName):
+        os.makedirs(dirName)
     start = time.time()
     while movieData.isOpened():
         ret, frame = movieData.read()
@@ -104,10 +105,12 @@ def Edit_Movie(filePath, fileName, extension, name):
         print(f"Save Frame in Video {number} / {maxFrame}")
         cv2.imwrite(dirName + "IMG" + f"{number:04}" + ".jpg", frame)
         number += 1
+        if number > 1000:
+            break
     end = time.time()
     print(f"Time to save video: {end - start: .2f}s")
 
-    fc.sk_clustering()
+    fc.sk_clustering(dirName)
     return
 
     maxFrame = movieData.get(cv2.CAP_PROP_FRAME_COUNT)
