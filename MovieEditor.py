@@ -6,6 +6,11 @@ import face_detect as fd
 import pickle
 import time
 
+import os
+import stat
+from os import listdir
+from os.path import isfile, join
+
 # 파일 확장자 알아내기
 """
  파일 확장자는 가장 끝부분에 .***의 형식으로 되어 있다.
@@ -77,21 +82,32 @@ def Edit_Movie(filePath, fileName, extension, name):
     number = 1
 
     maxFrame = movieData.get(cv2.CAP_PROP_FRAME_COUNT)
+
+    dirName = "data/IMG/Video/"
+    '''
+    start = time.time()
+    if os.path.exists(dirName):
+        files = [f for f in listdir(dirName) if isfile(join(dirName, f))]
+        for i, file in enumerate(files):
+            os.chmod(dirName + files[i], stat.S_IWUSR)
+            os.remove(dirName + files[i])
+        os.rmdir(dirName)
+    os.makedirs(dirName)
+    end = time.time()
+    print(f"Remove All Files :{end - start}s")
+    '''
     start = time.time()
     while movieData.isOpened():
         ret, frame = movieData.read()
         if frame is None:
             break
         print(f"Save Frame in Video {number} / {maxFrame}")
-        dirName = "data/IMG/Video/"
-        if not os.path.exists(dirName):
-            os.makedirs(dirName)
         cv2.imwrite(dirName + "IMG" + f"{number:04}" + ".jpg", frame)
         number += 1
     end = time.time()
     print(f"Time to save video: {end - start: .2f}s")
 
-    fc.Img_clustering()
+    fc.sk_clustering()
     return
 
     maxFrame = movieData.get(cv2.CAP_PROP_FRAME_COUNT)
