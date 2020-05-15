@@ -6,7 +6,7 @@ import dlib
 
 mtcnn_detector = MTCNN()
 hog_detector = dlib.get_frontal_face_detector()
-cnn_detector = dlib.cnn_face_detection_model_v1("data/mmod_human_face_detector.dat")
+# cnn_detector = dlib.cnn_face_detection_model_v1("data/mmod_human_face_detector.dat")
 
 protextPath = "data/DNN/deploy.prototxt"
 caffeModelPath = "data/DNN/res10_300x300_ssd_iter_140000.caffemodel"
