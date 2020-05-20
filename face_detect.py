@@ -3,6 +3,7 @@ import cv2
 import FaceDetector as models
 import face_recognition
 import imutils
+import os
 
 import time
 
@@ -108,11 +109,10 @@ def face_detect(image, model):
     end = time.time()
     print("Face Matches: ", format(end - start, '.2f'))
     '''
-            
+
     # DNN에서 얼굴 찾기
     detections_dnn, h, w = find_faces_dnn(image)
     dnn_face_amount = 0
-    color = (255, 0, 0)
     start = time.time()
     for i in range(0, detections_dnn.shape[2]):
         confidence = detections_dnn[0, 0, i, 2]
@@ -120,18 +120,17 @@ def face_detect(image, model):
             dnn_face_amount += 1
             dnn_box = detections_dnn[0, 0, i, 3:7] * np.array([w, h, w, h])
             sx, sy, ex, ey = dnn_box.astype("int")
-            box = (sy, ex, ey, sx)
-            boxes = {box}
+            box = [(sy, ex, ey, sx)]
 
             rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            encodings = face_recognition.face_encodings(rgb, boxes)
+            encodings = face_recognition.face_encodings(rgb, box)
 
             name = "unknown"
             for encoding in encodings:
                 # attempt to match each face in the input image to our known
                 # encodings
                 matches = face_recognition.compare_faces(model["encodings"],
-                                                         encoding, tolerance=0.5)
+                                                         encoding, tolerance=0.4)
                 if True in matches:
                     # find the indexes of all matched faces then initialize a
                     # dictionary to count the total number of times each face
@@ -151,7 +150,16 @@ def face_detect(image, model):
                     name = max(counts, key=counts.get)
 
             if name is not "unknown":
-                color = (0, 255, 0)
+                color = (0, 0, 0)
+                if str(name) == "hwasa":
+                    color = (255, 255, 0)
+                elif str(name) == "wheein":
+                    color = (255, 0, 255)
+                elif str(name) == "solar":
+                    color = (0, 0, 255)
+                elif str(name) == "munbyeol":
+                    color = (0, 255, 255)
+
                 cv2.rectangle(image, (sx, sy), (ex, ey), color, thickness=3)
                 cv2.putText(image, name, (sx, ey), fontface, fontscale, color, thick)
     end = time.time()
@@ -180,7 +188,7 @@ def face_detect(image, model):
 # draw an image with detected objects
 def find_faces(filepath):
     img = cv2.imread(filepath)
-    blob = cv2.dnn.blobFromImage(cv2.resize(img, (200, 200)), 1.0, (200,200), (104.0, 177.0, 123.0))
+    blob = cv2.dnn.blobFromImage(cv2.resize(img, (200, 200)), 1.0, (200, 200), (104.0, 177.0, 123.0))
 
     models.dnnModel.setInput(blob)
     detections = models.dnnModel.forward()
@@ -233,6 +241,7 @@ def find_faces_mtcnn(img):
     print("MTCNN : ", format(end - start, '.2f'))
     return faces
 
+
 def find_faces_dnn(img):
     start = time.time()
     (h, w) = img.shape[:2]
@@ -242,3 +251,55 @@ def find_faces_dnn(img):
     end = time.time()
     print("DNN : ", format(end - start, '.2f'))
     return detections, h, w
+
+
+def find_one_face_dnn(filename):
+    img = imread_utf8(filename)
+    count = 0
+    faces, h, w = find_faces_dnn(img)
+    for j in range(0, faces.shape[2]):
+        confidence = faces[0, 0, j, 2]
+        if confidence > 0.5:
+            count += 1
+            if count > 1:
+                break
+            box = faces[0, 0, j, 3:7] * np.array([w, h, w, h])
+            sx, sy, ex, ey = box.astype("int")
+            faceImg = img[sy:ey, sx:ex]
+            faceImg = cv2.resize(faceImg, dsize=(150, 150), interpolation=cv2.INTER_LINEAR)
+
+    if count == 1:
+        print("Find one face")
+        imwrite_utf8(filename, faceImg)
+        return True
+    else:
+        print("face is not only one")
+        os.remove(filename)
+        return False
+
+
+def imread_utf8(img_path, flags=cv2.IMREAD_COLOR):
+    try:
+        new_imgPath = np.fromfile(img_path, np.uint8)
+        img = cv2.imdecode(new_imgPath, flags)
+        return img
+    except Exception as e:
+        print(e)
+        return None
+
+
+def imwrite_utf8(img_path, img, params=None):
+    try:
+        ext = os.path.splitext(img_path)[1]
+        result, n = cv2.imencode(ext, img, params)
+
+        if result:
+            with open(img_path, mode='wb') as f:
+                n.tofile(f)
+            return True
+        else:
+            return False
+    except Exception as e:
+        print(e)
+        return None
+

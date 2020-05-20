@@ -5,6 +5,7 @@ import os
 
 import re
 import face_clustering as fc
+import face_detect as fd
 
 notAllowedChar = '^[/:*?"<>|\\\\ ]+$'
 
@@ -72,13 +73,17 @@ def Crawling_Image(name, maxAmount):
                     try:
                         img = urlopen(i[1].attrs['data-source']).read()
                         filename = dirName + 'IMG' + f'{currentImageAmount:05}' + '.jpg'
-                        with open(filename, 'wb') as f:
-                            f.write(img)
+                        f = open(filename, "wb")
+                        f.write(img)
+                        f.close()
+
+                        if fd.find_one_face_dnn(filename):
                             print(i[1].attrs['alt'])
                             print("Img Save Success: " + str(currentImageAmount))
                             currentImageAmount += 1
-                            if currentImageAmount > maxAmount:
-                                break
+
+                        if currentImageAmount > maxAmount:
+                            break
                     except ValueError:
                         continue
 

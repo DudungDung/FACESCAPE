@@ -68,7 +68,7 @@ def Check_Directory(dirPath):
 
 
 def Edit_Movie(filePath, fileName, extension, name):
-    # model = pickle.loads(open(f"data/model/{name}.model", "rb").read())
+    model = pickle.loads(open(f"data/model/{name}.model", "rb").read())
     movieData = cv2.VideoCapture(filePath)
 
     # 출력 결과 파일을 data폴더에 temp.* 파일로 폴더에 저장
@@ -95,6 +95,7 @@ def Edit_Movie(filePath, fileName, extension, name):
     end = time.time()
     print(f"Remove All Files :{end - start}s")
     '''
+    '''
     if not os.path.exists(dirName):
         os.makedirs(dirName)
     start = time.time()
@@ -112,6 +113,7 @@ def Edit_Movie(filePath, fileName, extension, name):
 
     fc.sk_clustering(dirName)
     return
+    '''
 
     maxFrame = movieData.get(cv2.CAP_PROP_FRAME_COUNT)
     movieData = cv2.VideoCapture(filePath)
