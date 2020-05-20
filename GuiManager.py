@@ -6,7 +6,8 @@ from tkinter import filedialog
 
 import MovieEditor as me
 import WebCrawler as wc
-import face_extract as fe
+import face_clustering as fc
+import face_recog as fr
 
 
 class MainFrame(Frame):
@@ -91,7 +92,7 @@ class MainFrame(Frame):
     def Search_Name(self):
         if not self.crawlName.get() == "" or None:
             if wc.Allow_Certain_Folder_Name(self.crawlName.get()):
-                wc.Crawling_Image(self.crawlName.get(), 2000)
+                wc.Crawling_Image(self.crawlName.get(), 200)
                 # crawlWindow = Toplevel(self.master)
                 # crawlWindow.mainloop()
             else:
@@ -102,7 +103,7 @@ class MainFrame(Frame):
     def Learning_Picture(self):
         if not self.crawlName.get() == "" or None:
             if wc.Allow_Certain_Folder_Name(self.crawlName.get()):
-                fe.face_extractor(self.crawlName.get())
+                fr.Recog_Face()
             else:
                 self.Set_Progress_Message('검색어에 \%/:*?"<>|.를 넣을 수 없습니다.')
         else:
@@ -163,5 +164,8 @@ def MainGUI():
     root.resizable(False, False)
     root.mainloop()
 
+def main():
+    MainGUI()
 
-MainGUI()
+if __name__ ==  "__main__":
+    main()

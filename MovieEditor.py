@@ -1,7 +1,15 @@
 import cv2
 from moviepy.editor import *
 
+import face_clustering as fc
 import face_detect as fd
+import pickle
+import time
+
+import os
+import stat
+from os import listdir
+from os.path import isfile, join
 
 # 파일 확장자 알아내기
 """
@@ -60,11 +68,7 @@ def Check_Directory(dirPath):
 
 
 def Edit_Movie(filePath, fileName, extension, name):
-    model = cv2.face.LBPHFaceRecognizer_create()
-    modelDir = 'data/model/'
-    os.rename(modelDir + name + ".model", modelDir + "trainer.model")
-    model.read(modelDir + "trainer.model")
-    os.rename(modelDir + "trainer.model", modelDir + name + ".model")
+    model = pickle.loads(open(f"data/model/{name}.model", "rb").read())
     movieData = cv2.VideoCapture(filePath)
 
     # 출력 결과 파일을 data폴더에 temp.* 파일로 폴더에 저장
@@ -75,18 +79,44 @@ def Edit_Movie(filePath, fileName, extension, name):
     tempFileName = "data/Temp" + extension
     output = cv2.VideoWriter(tempFileName, videoCodec, fps, (int(width), int(height)))
 
-    # 프레임가리는 사각형
-    loadedImg = cv2.imread("data/BlackImage.jpg")
-    blackRec = cv2.resize(loadedImg, (int(width), (int(height))))
-
-    # 테스트용 putText 속성들
     number = 1
-    loc = (30, 50)
-    font = cv2.FONT_HERSHEY_SIMPLEX
-    fontScale = 1
-    black = (0, 0, 0)
-    thickness = 2
 
+    maxFrame = movieData.get(cv2.CAP_PROP_FRAME_COUNT)
+
+    dirName = "data/IMG/Video/"
+    '''
+    start = time.time()
+    if os.path.exists(dirName):
+        files = [f for f in listdir(dirName) if isfile(join(dirName, f))]
+        for i, file in enumerate(files):
+            os.chmod(dirName + files[i], stat.S_IWUSR)
+            os.remove(dirName + files[i])
+        os.rmdir(dirName)
+    end = time.time()
+    print(f"Remove All Files :{end - start}s")
+    '''
+    '''
+    if not os.path.exists(dirName):
+        os.makedirs(dirName)
+    start = time.time()
+    while movieData.isOpened():
+        ret, frame = movieData.read()
+        if frame is None:
+            break
+        print(f"Save Frame in Video {number} / {maxFrame}")
+        cv2.imwrite(dirName + "IMG" + f"{number:04}" + ".jpg", frame)
+        number += 1
+        # if number > 1000:
+        #   break
+    end = time.time()
+    print(f"Time to save video: {end - start: .2f}s")
+
+    fc.sk_clustering(dirName)
+    return
+    '''
+
+    maxFrame = movieData.get(cv2.CAP_PROP_FRAME_COUNT)
+    movieData = cv2.VideoCapture(filePath)
     # 영상 읽기
     while movieData.isOpened():
         ret, frame = movieData.read()
@@ -97,6 +127,7 @@ def Edit_Movie(filePath, fileName, extension, name):
 
         # 다음 프레임으로 진행
         number = number + 1
+        print(f'Progress: {number} / {maxFrame}')
         # cv2.imshow('frame', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
