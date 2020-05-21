@@ -9,6 +9,8 @@ import pickle
 import signal
 import sys
 
+import face_detect as fd
+
 
 class Face():
     def __init__(self, frame_id, name, box, encoding):
@@ -69,24 +71,27 @@ class FaceClustering():
 
             frame_id += 1
             if frame_id % frames_between_capture != 0:
-                continue
+              continue
 
             if stop_at_frame > 0 and frame_id > stop_at_frame:
                 break
 
             rgb = frame[:, :, ::-1]
-            boxes = face_recognition.face_locations(rgb, model="hog")
-
-            print("frame_id =", frame_id, boxes)
-            if not boxes:
-                continue
-
-            encodings = face_recognition.face_encodings(rgb, boxes)
 
             faces_in_frame = []
-            for box, encoding in zip(boxes, encodings):
-                face = Face(frame_id, None, box, encoding)
-                faces_in_frame.append(face)
+
+            faces_dnn, h, w = fd.find_faces_dnn(rgb)
+            for j in range(0, faces_dnn.shape[2]):
+                confidence = faces_dnn[0, 0, j, 2]
+                if confidence > 0.5:
+                    rgb = cv2.cvtColor(rgb, cv2.COLOR_BGR2RGB)
+                    dnn_box = faces_dnn[0, 0, j, 3:7] * np.array([w, h, w, h])
+                    sx, sy, ex, ey = dnn_box.astype("int")
+                    box = [[sy, ex, ey, sx]]
+                    encodings = face_recognition.face_encodings(rgb, box)
+                    for b, encoding in zip(box, encodings):
+                        face = Face(frame_id, None, b, encoding)
+                        faces_in_frame.append(face)
 
             # save the frame
             self.drawBoxes(frame, faces_in_frame)
