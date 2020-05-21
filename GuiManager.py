@@ -6,9 +6,7 @@ from tkinter import filedialog
 
 import MovieEditor as me
 import WebCrawler as wc
-import face_clustering as fc
 import face_recog as fr
-
 
 class MainFrame(Frame):
     # filePath와 savePath가 변수설정
