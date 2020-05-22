@@ -1,4 +1,5 @@
 from imutils import paths
+import imutils
 import face_recognition
 import numpy as np
 import pickle
@@ -33,6 +34,50 @@ def imwrite_utf8(img_path, img, params=None):
     except Exception as e:
         print(e)
         return None
+
+
+def Face_Recog():
+    embeddingModelPath = ""
+    embedder = cv2.dnn.readNetFromTorch(embeddingModelPath)
+    dirPath = "data/training-images/"
+    imgPaths = list(paths.list_images(dirPath))
+
+    knownEmbeddings = []
+    knownNames = []
+
+    total = 0
+    for (i, imgPath) in enumerate(imgPaths):
+        print(f"[INFO] processing image {i+1}/ {len(imgPaths)}")
+        name = imgPaths.split(os.path.sep)[-2]
+
+        image = cv2.imread(imgPath)
+        image = imutils.resize(image, width=600)
+
+        faces, h, w = fd.find_faces_dnn(image)
+        for j in range(0, faces.shape[2]):
+            confidence = faces[0, 0, j, 2]
+            if confidence > 0.5:
+                box = faces[0, 0, j, 3:7] * np.array([w, h, w, h])
+                sx, sy, ex, ey = box.astype("int")
+
+                face = image[sy:ey, sx,ex]
+                fH, fW = face.shape[:2]
+
+                if fW < 20 or fH < 20:
+                    continue
+
+                faceBlob = cv2.dnn.blobFromImage(face, 1.0 / 255, (96, 96), (0, 0, 0), swapRB=True, crop=False)
+                embedder.setInput(faceBlob)
+                vec = embedder.forward()
+
+                knownNames.append(name)
+                knownEmbeddings.append(vec.flatten())
+                total += 1
+    print("[INFO] serializing {} encodings...".format(total))
+    data = {"embeddings": knownEmbeddings, "names": knownNames}
+    f = open("마마무.model", "wb")
+    f.write(pickle.dumps(data))
+    f.close()
 
 
 def Recog_Face():
