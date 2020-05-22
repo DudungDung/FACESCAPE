@@ -7,6 +7,8 @@ import numpy as np
 import os
 import pickle
 import signal
+from os import listdir
+from os.path import isfile, join
 import sys
 
 
@@ -38,21 +40,22 @@ class FaceClustering():
             cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
 
     def encode(self, src_file, capture_per_second, stop=0):
-        src = cv2.VideoCapture(src_file)
-       # onlyfiles = [f for f in listdir(data_path) if isfile(join(data_path, f))]
-        if not src.isOpened():
+        #src = cv2.VideoCapture(src_file)
+        src = [f for f in listdir(src_file) if isfile(join(src_file, f))]
+        if src.__len__() <= 0:
+            print("사진이 존재하지 않습니다.")
             return
 
         self.faces = []
         frame_id = 0
-        frame_rate = src.get(5)
+        """frame_rate = src.get(5)
         stop_at_frame = int(stop * frame_rate)
-        frames_between_capture = int(round(frame_rate) / capture_per_second)
+        frames_between_capture = int(round(frame_rate) / capture_per_second)"""
 
-        print("start encoding from src: %dx%d, %f frame/sec" % (src.get(3), src.get(4), frame_rate))
-        print(" - capture every %d frame" % frames_between_capture)
-        if stop_at_frame > 0:
-            print(" - stop after %d frame" % stop_at_frame)
+       # print("start encoding from src: %dx%d, %f frame/sec" % (src.get(3), src.get(4), frame_rate))
+       # print(" - capture every %d frame" % frames_between_capture)
+       # if stop_at_frame > 0:
+       #     print(" - stop after %d frame" % stop_at_frame)
 
         # set SIGINT (^C) handler
         prev_handler = signal.signal(signal.SIGINT, self.signal_handler)
@@ -63,44 +66,50 @@ class FaceClustering():
 
         self.run_encoding = True
         while self.run_encoding:
-            ret, frame = src.read()
-            if frame is None:
-                break
+            for ret, frame in enumerate(src):
+               # ret, frame = src.read()
+                if frame is None:
+                    break
 
-            frame_id += 1
-            if frame_id % frames_between_capture != 0:
-                continue
+                frame_id += 1
+               # if frame_id % frames_between_capture != 0:
+                #    continue
 
-            if stop_at_frame > 0 and frame_id > stop_at_frame:
-                break
+                #if stop_at_frame > 0 and frame_id > stop_at_frame:
+                 #   break
 
-            rgb = frame[:, :, ::-1]
-            boxes = face_recognition.face_locations(rgb, model="hog")
 
-            print("frame_id =", frame_id, boxes)
-            if not boxes:
-                continue
+                image_path = src_file + src[ret]
+                image = cv2.imread(image_path, cv2.IMREAD_COLOR)
+                gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+                rgb = image[:, :, ::-1]
+                boxes = face_recognition.face_locations(rgb, model="hog")
 
-            encodings = face_recognition.face_encodings(rgb, boxes)
+                print("frame_id =", frame_id, boxes)
+                if not boxes:
+                    continue
 
-            faces_in_frame = []
-            for box, encoding in zip(boxes, encodings):
-                face = Face(frame_id, None, box, encoding)
-                faces_in_frame.append(face)
+                encodings = face_recognition.face_encodings(rgb, boxes)
+
+                faces_in_frame = []
+                for box, encoding in zip(boxes, encodings):
+                    face = Face(frame_id, None, box, encoding)
+                    faces_in_frame.append(face)
 
             # save the frame
-            self.drawBoxes(frame, faces_in_frame)
-            pathname = os.path.join(self.capture_dir,
+               # self.drawBoxes(frame, faces_in_frame)
+                pathname = os.path.join(self.capture_dir,
                                     self.capture_filename(frame_id))
-            cv2.imwrite(pathname, frame)
+                cv2.imwrite(pathname, image)
             #cv2.imshow("Frame", frame)
 
-            self.faces.extend(faces_in_frame)
+                self.faces.extend(faces_in_frame)
+            break
 
         # restore SIGINT (^C) handler
         signal.signal(signal.SIGINT, prev_handler)
         self.run_encoding = False
-        src.release()
+        #src.release()
         return
 
     def save(self, filename):
@@ -167,25 +176,29 @@ class FaceClustering():
 
 
 if __name__ == '__main__':
-    import argparse
+   #import argparse
 
-    ap = argparse.ArgumentParser()
-    ap.add_argument("-e", "--encode",
+    #ap = argparse.ArgumentParser()
+    """ ap.add_argument("-e", "--encode",
                     help="video file to encode or '0' to encode web cam")
     ap.add_argument("-c", "--capture", default=1, type=int,
                     help="# of frame to capture per second")
     ap.add_argument("-s", "--stop", default=0, type=int,
-                    help="stop encoding after # seconds")
-    args = ap.parse_args()
+                    help="stop encoding after # seconds")"""
+    #args = ap.parse_args()
+
 
     fc = FaceClustering()
-
-    if args.encode:
+    src_file = "Video/"
+    fc.encode(src_file, 0, 0)
+    fc.save("encodings.pickle")
+    """if args.encode:
         src_file = args.encode
         if src_file == "0":
             src_file = 0
         fc.encode(src_file, args.capture, args.stop)
         fc.save("encodings.pickle")
+        """
 
     try:
         fc.load("encodings.pickle")
