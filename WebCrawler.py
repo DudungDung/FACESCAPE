@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup
 import os
 
 import re
+import face_clustering as fc
+import face_detect as fd
 
 notAllowedChar = '^[/:*?"<>|\\\\ ]+$'
 
@@ -44,7 +46,7 @@ def Crawling_Image(name, maxAmount):
     startNum = 0
     currentImageAmount = 1
 
-    dirName = "data/IMG/" + name + '/'
+    dirName = "data/IMG/Temp/"
     try:
         if not os.path.exists(dirName):
             os.makedirs(dirName)
@@ -71,18 +73,23 @@ def Crawling_Image(name, maxAmount):
                     try:
                         img = urlopen(i[1].attrs['data-source']).read()
                         filename = dirName + 'IMG' + f'{currentImageAmount:05}' + '.jpg'
-                        with open(filename, 'wb') as f:
-                            f.write(img)
+                        f = open(filename, "wb")
+                        f.write(img)
+                        f.close()
+
+                        if fd.find_one_face_dnn(filename):
                             print(i[1].attrs['alt'])
                             print("Img Save Success: " + str(currentImageAmount))
                             currentImageAmount += 1
-                            if currentImageAmount > maxAmount:
-                                break
+
+                        if currentImageAmount > maxAmount:
+                            break
                     except ValueError:
                         continue
 
         startNum += 50
 
+    fc.sk_clustering(dirName)
     # 이미지 url https://www.google.com/search?q=검색내용&tbm=isch
     # 구글은 기본적으로 20개를 불러오는 방식을 이용함
     # 이 때 start 인자를 이용하면 시작지점을 정할 수 있어 20개단위로 여러번 작동시켜 원하는만큼 받아오도록 함
