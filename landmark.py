@@ -1,21 +1,21 @@
 import argparse
 #argparse make user friendly interface
 
-import cv2
-import numpy as np
+#import cv2
+#import numpy as np
 import tensorflow as tf
 
 from model import LandmarkModel
-
+#실행에 필요한 arguments
 parser = argparse.ArgumentParser()
-parser.add_argument('--train_record', default='train.record', type=str, help='Training record file')
-parser.add_argument('--val_record', default='validation.record', type=str, help='validation record file')
-parser.add_argument('--model_dir', default='train', type=str, help='training model directory')
-parser.add_argument('--export_dir', default=None, type=str, help='directory to export the saved model')
-parser.add_argument('--train_steps', default=1000, type=int, help='training steps')
-parser.add_argument('--num_epochs', default=None, type=int, help='epochs of training dataset')
-parser.add_argument('--batch_size', default=16, type=int, help='training batch size')
-parser.add_argument('--raw_input', default=False, type=bool, help='Use raw tensor as model input.')
+parser.add_argument("--train_record", default="face", type=str, help='Training record file')
+parser.add_argument("--val_record", default="validation", type=str, help='validation record file')
+parser.add_argument("--model_dir", default="train", type=str, help='training model directory')
+parser.add_argument("--export_dir", default="saved_model", type=str, help='directory to export the saved model')
+parser.add_argument("--train_steps", default=80, type=int, help='training steps')
+parser.add_argument("--num_epochs", default=20, type=int, help='epochs of training dataset')
+parser.add_argument("--batch_size", default=32, type=int, help='training batch size')
+parser.add_argument("--raw_input", default=True, type=bool, help='Use raw tensor as model input.')
 
 IMG_W = 128
 IMG_H = 128
@@ -74,7 +74,7 @@ def _parse_fuction(record):
     keys_to_features = {
         'image/filename': tf.FixedLenFeature([], tf.string),
         'image/encoded': tf.FixedLenFeature([], tf.string),
-        'label/marks': tf.FixedLenFeatures([136], tf.float32),
+        'label/marks': tf.FixedLenFeature([136], tf.float32),
     }
     parsed_features = tf.parse_single_example(record, keys_to_features)
 
