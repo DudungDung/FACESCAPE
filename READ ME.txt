@@ -10,3 +10,6 @@ sklearn
 moviepy
 bs4
 imutils
+
+chinese-whispers
+- facenet
