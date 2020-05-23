@@ -188,7 +188,7 @@ def get_onedir(paths):
     return dataset
 
 
-def main():
+def main(args):
     """ Main
     Given a list of images, save out facial encoding data files and copy
     images into folders of face clusters.
@@ -253,10 +253,13 @@ def parse_args():
     parser.add_argument('--input', type=str, help='Input dir of images', required=True)
     parser.add_argument('--output', type=str, help='Output dir of clusters', required=True)
     args = parser.parse_args()
+    args.model_dir = 'model'
+    args.batch_size = '128'
+    args.input = 'input'
+    args.output = 'output'
     return args
 
 
 if __name__ == '__main__':
     """ Entry point """
-    #main(parse_args())
-    main()
+    main(parse_args())
