@@ -5,10 +5,10 @@ import numpy as np
 import pickle
 import cv2
 import os
-
 import time
 import face_detect as fd
-
+import tensorflow as tf
+from tensorflow import keras
 
 def imread_utf8(img_path, flags):
     try:
@@ -141,9 +141,15 @@ def Recog_Face():
             knownEncoding.append(en)
             knownNames.append("Human")
     '''
+    w1 = tf.Variable(tf.random.normal(knownEncodings), name='w1')
+    saver = tf.compat.v1.train.Saver()
+    sess = tf.compat.v1.Session()
+    sess.run(tf.compat.v1.global_variables_initializer())
+    sess.run(w1)
+    saver.save(sess, 'model')
     print("Serializing encodings")
     data = {"encodings": knownEncodings, "names": knownNames}
-    f = open(f"data/model/마마무.model", "wb")
+    f = open(f"data/model/test.", "w", encoding ='utf-8')
     f.write(pickle.dumps(data))
     f.close()
     print("End")

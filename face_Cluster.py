@@ -8,7 +8,10 @@ import os
 import pickle
 import signal
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile, join, basename
+from face_detect import find_faces_dnn
+from Chinese_whispers import _chinese_whispers as whisper
+import shutil
 import sys
 
 
@@ -52,11 +55,6 @@ class FaceClustering():
         stop_at_frame = int(stop * frame_rate)
         frames_between_capture = int(round(frame_rate) / capture_per_second)"""
 
-       # print("start encoding from src: %dx%d, %f frame/sec" % (src.get(3), src.get(4), frame_rate))
-       # print(" - capture every %d frame" % frames_between_capture)
-       # if stop_at_frame > 0:
-       #     print(" - stop after %d frame" % stop_at_frame)
-
         # set SIGINT (^C) handler
         prev_handler = signal.signal(signal.SIGINT, self.signal_handler)
         print("press ^C to stop encoding immediately")
@@ -67,37 +65,37 @@ class FaceClustering():
         self.run_encoding = True
         while self.run_encoding:
             for ret, frame in enumerate(src):
-               # ret, frame = src.read()
+                #ret, frame = src.read()
                 if frame is None:
                     break
 
                 frame_id += 1
-               # if frame_id % frames_between_capture != 0:
-                #    continue
-
-                #if stop_at_frame > 0 and frame_id > stop_at_frame:
-                 #   break
-
-
-                image_path = src_file + src[ret]
-                image = cv2.imread(image_path, cv2.IMREAD_COLOR)
-                gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-                rgb = image[:, :, ::-1]
-                boxes = face_recognition.face_locations(rgb, model="hog")
-
-                print("frame_id =", frame_id, boxes)
-                if not boxes:
+                """if frame_id % frames_between_capture != 0:
                     continue
 
-                encodings = face_recognition.face_encodings(rgb, boxes)
+                if stop_at_frame > 0 and frame_id > stop_at_frame:
+                    break """
+                image_path = src_file + src[ret]
+                image = cv2.imread(image_path, cv2.IMREAD_COLOR)
 
+                rgb = image[:, :, ::-1]
                 faces_in_frame = []
-                for box, encoding in zip(boxes, encodings):
-                    face = Face(frame_id, None, box, encoding)
-                    faces_in_frame.append(face)
+
+                faces_dnn, h, w = find_faces_dnn(rgb)
+                for j in range(0, faces_dnn.shape[2]):
+                    confidence = faces_dnn[0, 0, j, 2]
+                    if confidence > 0.5:
+                        rgb = cv2.cvtColor(rgb, cv2.COLOR_BGR2RGB)
+                        dnn_box = faces_dnn[0, 0, j, 3:7] * np.array([w, h, w, h])
+                        sx , sy, ex, ey = dnn_box.astype("int")
+                        box = [[sy, ex, ey, sx]]
+                        encodings = face_recognition.face_encodings(rgb, box)
+                        for b, encoding in zip(box, encodings):
+                            face = Face(frame_id, None, b, encoding)
+                            faces_in_frame.append(face)
 
             # save the frame
-               # self.drawBoxes(frame, faces_in_frame)
+                self.drawBoxes(image, faces_in_frame)
                 pathname = os.path.join(self.capture_dir,
                                     self.capture_filename(frame_id))
                 cv2.imwrite(pathname, image)
@@ -205,4 +203,14 @@ if __name__ == '__main__':
     except FileNotFoundError:
         print("No or invalid encoding file. Encode first using -e flag.")
         exit(1)
-    fc.cluster()
+
+    sorted_clusters = whisper(fc.faces)
+    num_cluster = len(sorted_clusters)
+
+# Copy image files to cluster folders
+    for idx, cluster in enumerate(sorted_clusters):
+        cluster_dir = join('output', str(idx))
+        if not os.path.exists(cluster_dir):
+            os.makedirs(cluster_dir)
+        for path in cluster:
+            shutil.copy(path, join(cluster_dir, basename(path)))
