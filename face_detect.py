@@ -17,7 +17,7 @@ class Box:
 
 
 def compare_box(box1, box2):
-    ratio = (1 - 0.8) / 2
+    ratio = (1 - 0.7) / 2
     # 서로가 일정 비율의 박스로 상대 박스 안에 있을 경우
     # 완전히 같거나 아예 들어간 경우는 0, 유사한 경우는 1, 아예 상관없으면 -1
     # 1은 복사 or 삭제 대상. 0, 2는 삭제 대상.
@@ -104,16 +104,21 @@ class faceDetection():
                     elif cp != -1:
                         boxes.append(box1)
                         label = 0
+                        isBreak = False
                         # label을 통해 비슷한 위치끼리 묶어서 하나가 남을 수 있도록 따로 저장해줌. 후에 비교할 때 사용
-                        while label < len(labels) + 1:
+                        while label < len(labels) + 1 and isBreak is False:
                             # labels에 없던 box라면 새롭게 만들어줘야함.
                             if label == len(labels):
                                 labels.append([box1])
+                                isBreak = True
                                 break
                             # labels에 이미 있던 box라면 추가해줌.
-                            elif compare_box(box1, labels[label][0]) != -1:
-                                labels[label].append(box1)
-                                break
+                            else:
+                                for label_box in labels[label]:
+                                    if compare_box(box1, label_box) != -1:
+                                        labels[label].append(box1)
+                                        isBreak = True
+                                        break
                             label += 1
                         break
         for small_box in small_boxes:
@@ -123,18 +128,12 @@ class faceDetection():
         # 중복된 box를 지울 때 다 지우면 안되므로 한개 남겨야함.
         for i, box in enumerate(boxes):
             for label_boxes in labels:
-                if find_label is True:
+                if len(label_boxes) <= 1:
                     break
-                find_label = False
-                for label_box in label_boxes:
-                    cp = compare_box(box, label_box)
-                    if cp == -1:
-                        break
-                    if len(label_boxes) > 1:
-                        self.faces[index].remove(box)
-                        label_boxes.remove(label_box)
-                        find_label = True
-                        break
+                if box in label_boxes:
+                    self.faces[index].remove(box)
+                    label_boxes.remove(box)
+                    break
 
 
 def draw_face(image, boxes):
