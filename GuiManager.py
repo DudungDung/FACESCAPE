@@ -8,6 +8,7 @@ import MovieEditor as me
 import WebCrawler as wc
 import face_recog as fr
 
+
 class MainFrame(Frame):
     # filePath와 savePath가 변수설정
 
@@ -90,7 +91,7 @@ class MainFrame(Frame):
     def Search_Name(self):
         if not self.crawlName.get() == "" or None:
             if wc.Allow_Certain_Folder_Name(self.crawlName.get()):
-                wc.Crawling_Image(self.crawlName.get(), 200)
+                wc.Crawling_Image(self.crawlName.get(), 500)
                 # crawlWindow = Toplevel(self.master)
                 # crawlWindow.mainloop()
             else:
@@ -101,7 +102,7 @@ class MainFrame(Frame):
     def Learning_Picture(self):
         if not self.crawlName.get() == "" or None:
             if wc.Allow_Certain_Folder_Name(self.crawlName.get()):
-                fr.Recog_Face()
+                fr.LBPH_Recog(self.crawlName.get())
             else:
                 self.Set_Progress_Message('검색어에 \%/:*?"<>|.를 넣을 수 없습니다.')
         else:

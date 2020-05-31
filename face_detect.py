@@ -1,169 +1,173 @@
 import numpy as np
 import cv2
 import FaceDetector as models
-import face_recognition
-import imutils
 import os
 
 import time
 
 
-def face_detect(image, model):
-    fontface = cv2.FONT_HERSHEY_SIMPLEX
-    fontscale = 0.5
-    fontcolor = (255, 255, 255)
-    thick = 2
+class Box:
+    def __init__(self, sx, sy, ex, ey):
+        self.sx = sx
+        self.sy = sy
+        self.ex = ex
+        self.ey = ey
+        self.w = ex - sx
+        self.h = ey - sy
 
-    # image = cv2.imread(image_file)
-    # print(image)
 
-    '''
-    # CNN에서 얼굴 찾기
-    face_cnn_list = find_faces_cnn(image)
-    color = (255, 0, 0)
-    for i, face in enumerate(face_cnn_list):
-        # CNN
-        x = face.rect.left()
-        y = face.rect.top()
-        w = face.rect.right() - x
-        h = face.rect.bottom() - y
-        cv2.rectangle(image, (x, y), (x + w, y + h), color, thickness=3)
-        cv2.putText(image, f"CNN{int(face.confidence)}", (x, y + h), fontface, fontscale, color, thick)
-    '''
+def compare_box(box1, box2):
+    ratio = (1 - 0.7) / 2
+    # 서로가 일정 비율의 박스로 상대 박스 안에 있을 경우
+    # 완전히 같거나 아예 들어간 경우는 0, 유사한 경우는 1, 아예 상관없으면 -1
+    # 1은 복사 or 삭제 대상. 0, 2는 삭제 대상.
 
-    '''
-    # HOG에서 얼굴 찾기
-    face_hog_list = find_faces_hog(image)
-    if len(face_hog_list) > 0:
-        color = (0, 255, 0)
-        for face in face_hog_list:
-            # HOG
-            x = face.left()
-            y = face.top()
-            w = face.right() - x
-            h = face.bottom() - y
-            cv2.rectangle(image, (x, y), (x + w, y + h), color, thickness=3)
-            cv2.putText(image, "HOG", (x, y + h), fontface, fontscale, color, thick)
-            '''
-    '''
-            cropped_face = image[y:y + h, x:x + w]
-            face_img = cv2.resize(cropped_face, (200, 200))
-            face_img = cv2.cvtColor(face_img, cv2.COLOR_BGR2GRAY)
-            result = model.predict(face_img)
-            if result[1] < 500:
-                confidence = int(100 * (1 - (result[1]) / 300))
-                
-            모자이크 처리 부분
-            face_img = cv2.resize(face_img, (w // 20, h // 20));
-            face_img = cv2.resize(face_img, (w, h), interpolation=cv2.INTER_AREA);
-            image[y:y + h, x:x + h] = face_img
+    i = -1
+    if ((box1.sx + (box1.w * ratio)) > box2.sx and (box1.ex - (box1.w * ratio)) < box2.ex and
+            (box1.sy + (box1.h * ratio)) > box2.sy and (box1.ey - (box1.h * ratio)) < box2.ey and
+            (box2.sx + (box2.w * ratio)) > box1.sx and (box2.ex - (box2.w * ratio)) < box1.ex and
+            (box2.sy + (box2.h * ratio)) > box1.sy and (box2.ey - (box2.h * ratio)) < box1.ey):
+        i = 1
 
-            cv2.rectangle(image, (x, y), (x+w, y+h), color, thickness = 8)
+    # box1이 메인이기 때문에 삭제 대상으로 잡을것은 box1이 안에 들어간 경우.
+    if box1.sx > box2.sx and box1.ex < box2.ex and box1.sy > box2.sy and box1.ex < box2.ex:
+        i = 2
 
-            adr = input("저장주소 :: ")
-            cv2.imwrite(adr, image)
-    '''
-    '''
+    # 완전히 똑같은 경우
+    if box1.sx == box2.sx and box1.sy == box2.sy and box1.w == box2.w and box1.h == box2.h:
+        i = 0
+
+    return i
+
+
+class faceDetection():
+    label = []
+    faces = []  # [boxes]
+    frame_amount = -1
+
+    def __init__(self, fps):
+        self.frame_amount = int(fps)
+        dirPath = "data/Video/"
+        video_images = [f for f in os.listdir(dirPath) if os.path.isfile(os.path.join(dirPath, f))]
+
+        empty_faces = 0
+        for i, imgFile in enumerate(video_images):
+            print(f"Processing Marking Box {i} / {len(video_images)}")
+            image = imread_utf8(dirPath + video_images[i])
+            boxes = face_detect(image)
+            if len(boxes) == 0:
+                empty_faces += 1
+            else:
+                empty_faces = 0
+            self.faces.append(boxes)
+            self.arrange_boxes(i)
+            if i > self.frame_amount > empty_faces:
+                start = time.time()
+                self.face_checking(i)
+                end = time.time()
+                print("Checking other box: ", format(end - start, '.2f'), "s")
+
+    def face_checking(self, index):
+        # 일정 프레임 이내의 상태를 확인하고 알맞는 박스가 있으면 같은 사람으로 인식
+        indexes = []
+        startIndex = index - self.frame_amount
+        for i, boxes in enumerate(self.faces[startIndex:index - 1]):
+            for box1 in boxes:
+                for k, box2 in enumerate(self.faces[index]):
+                    if (k not in indexes) and (compare_box(box1, box2) == 1):
+                        indexes.append(k)
+                        j = i + 1 + startIndex
+                        while j < index:
+                            self.faces[j].append(box2)
+                            j += 1
+
+        if len(indexes) > 0:
+            i = startIndex
+            while i < index:
+                self.arrange_boxes(i)
+                i += 1
+
+    # 중복되는 box들은 지워줌
+    def arrange_boxes(self, index):
+        print(f"{index}. Remove redundant boxes among {len(self.faces[index])} boxes")
+        small_boxes = []
+        boxes = []
+        labels = []
+        for i, box1 in enumerate(self.faces[index]):
+            for j, box2 in enumerate(self.faces[index]):
+                if (i != j) and (box1 not in boxes):
+                    cp = compare_box(box1, box2)
+                    # 작은 상자들은 따로 먼저 처리해줘야함.
+                    if cp == 2:
+                        small_boxes.append(box1)
+                        break
+                    elif cp != -1:
+                        boxes.append(box1)
+                        label = 0
+                        isBreak = False
+                        # label을 통해 비슷한 위치끼리 묶어서 하나가 남을 수 있도록 따로 저장해줌. 후에 비교할 때 사용
+                        while label < len(labels) + 1 and isBreak is False:
+                            # labels에 없던 box라면 새롭게 만들어줘야함.
+                            if label == len(labels):
+                                labels.append([box1])
+                                isBreak = True
+                                break
+                            # labels에 이미 있던 box라면 추가해줌.
+                            else:
+                                for label_box in labels[label]:
+                                    if compare_box(box1, label_box) != -1:
+                                        labels[label].append(box1)
+                                        isBreak = True
+                                        break
+                            label += 1
+                        break
+        for small_box in small_boxes:
+            self.faces[index].remove(small_box)
+
+        find_label = False
+        # 중복된 box를 지울 때 다 지우면 안되므로 한개 남겨야함.
+        for i, box in enumerate(boxes):
+            for label_boxes in labels:
+                if len(label_boxes) <= 1:
+                    break
+                if box in label_boxes:
+                    self.faces[index].remove(box)
+                    label_boxes.remove(box)
+                    break
+
+
+def draw_face(image, boxes):
+    color = (0, 255, 0)
+    for box in boxes:
+        image = cv2.rectangle(image, (box.sx, box.sy), (box.ex, box.ey), color, thickness=3)
+    return image
+
+
+def face_detect(image):
+    boxes = []
+
     # MTCNN에서 얼굴 찾기
     face_mtcnn_list = find_faces_mtcnn(image)
-    start = time.time()
     if len(face_mtcnn_list) > 0:
         color = (255, 255, 0)
         for face in face_mtcnn_list:
             x, y, w, h = face['box']
-            
-            box = (y, x+w, y+h, x)
-            boxes = {box}
-            
-            rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            encodings = face_recognition.face_encodings(rgb, boxes)
-
-            name = "unknown"
-            for encoding in encodings:
-                # attempt to match each face in the input image to our known
-                # encodings
-                matches = face_recognition.compare_faces(model["encodings"],
-                                                         encoding, tolerance=0.6)
-                if True in matches:
-                    # find the indexes of all matched faces then initialize a
-                    # dictionary to count the total number of times each face
-                    # was matched
-                    matchedIdxs = [i for (i, b) in enumerate(matches) if b]
-                    counts = {}
-
-                    # loop over the matched indexes and maintain a count for
-                    # each recognized face face
-                    for n in matchedIdxs:
-                        name = model["names"][n]
-                        counts[name] = counts.get(name, 0) + 1
-
-                    # determine the recognized face with the largest number
-                    # of votes (note: in the event of an unlikely tie Python
-                    # will select first entry in the dictionary)
-                    name = max(counts, key=counts.get)
-
-            if name is not "unknown":
-                color = (0, 255, 0)
-                cv2.rectangle(image, (x, y), (x+w, y+h), color, thickness=3)
-
-    end = time.time()
-    print("Face Matches: ", format(end - start, '.2f'))
-    '''
+            box = Box(x, y, x + w, y + h)
+            boxes.append(box)
 
     # DNN에서 얼굴 찾기
     detections_dnn, h, w = find_faces_dnn(image)
     dnn_face_amount = 0
-    start = time.time()
     for i in range(0, detections_dnn.shape[2]):
         confidence = detections_dnn[0, 0, i, 2]
         if confidence > 0.15:
             dnn_face_amount += 1
             dnn_box = detections_dnn[0, 0, i, 3:7] * np.array([w, h, w, h])
             sx, sy, ex, ey = dnn_box.astype("int")
-            box = [(sy, ex, ey, sx)]
+            box = Box(sx, sy, ex, ey)
+            boxes.append(box)
 
-            rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            encodings = face_recognition.face_encodings(rgb, box)
-
-            name = "unknown"
-            for encoding in encodings:
-                # attempt to match each face in the input image to our known
-                # encodings
-                matches = face_recognition.compare_faces(model["encodings"],
-                                                         encoding, tolerance=0.4)
-                if True in matches:
-                    # find the indexes of all matched faces then initialize a
-                    # dictionary to count the total number of times each face
-                    # was matched
-                    matchedIdxs = [i for (i, b) in enumerate(matches) if b]
-                    counts = {}
-
-                    # loop over the matched indexes and maintain a count for
-                    # each recognized face face
-                    for n in matchedIdxs:
-                        name = model["names"][n]
-                        counts[name] = counts.get(name, 0) + 1
-
-                    # determine the recognized face with the largest number
-                    # of votes (note: in the event of an unlikely tie Python
-                    # will select first entry in the dictionary)
-                    name = max(counts, key=counts.get)
-
-            if name is not "unknown":
-                color = (0, 0, 0)
-                if str(name) == "hwasa":
-                    color = (255, 255, 0)
-                elif str(name) == "wheein":
-                    color = (255, 0, 255)
-                elif str(name) == "solar":
-                    color = (0, 0, 255)
-                elif str(name) == "munbyeol":
-                    color = (0, 255, 255)
-
-                cv2.rectangle(image, (sx, sy), (ex, ey), color, thickness=3)
-                cv2.putText(image, name, (sx, ey), fontface, fontscale, color, thick)
-    end = time.time()
-    print("Face Matches: ", format(end - start, '.2f'))
+    return boxes
 
     '''
     for i in range(0, detections_dnn.shape[2]):
@@ -175,10 +179,6 @@ def face_detect(image, model):
             cv2.rectangle(image, (sx, sy), (ex, ey), color, thickness=3)
             cv2.putText(image, f"DNN {int(confidence * 100)}", (sx, ey), fontface, fontscale, color, thick)
     '''
-    # print(f"Find {len(face_cnn_list)} on CNN")
-    # print(f"Find {len(face_hog_list)} on HOG")
-    # print(f"Find {len(face_mtcnn_list)} on MTCNN")
-    print(f"Find {dnn_face_amount} on DNN confidence > 15%")
 
     viewed_img = cv2.resize(image, dsize=(0, 0), fx=0.5, fy=0.5)
     cv2.imshow("example", viewed_img)
@@ -266,7 +266,17 @@ def find_one_face_dnn(filename):
             box = faces[0, 0, j, 3:7] * np.array([w, h, w, h])
             sx, sy, ex, ey = box.astype("int")
             faceImg = img[sy:ey, sx:ex]
+<<<<<<< HEAD
             faceImg = cv2.resize(faceImg, dsize=(300, 300), interpolation=cv2.INTER_LINEAR)
+=======
+
+            fH, fW = faceImg.shape[:2]
+            if fW < 20 or fH < 20:
+                count -= 1
+                break
+
+            faceImg = cv2.resize(faceImg, dsize=(150, 150), interpolation=cv2.INTER_LINEAR)
+>>>>>>> MTCNN
 
     if count == 1:
         print("Find one face")
@@ -302,4 +312,3 @@ def imwrite_utf8(img_path, img, params=None):
     except Exception as e:
         print(e)
         return None
-
