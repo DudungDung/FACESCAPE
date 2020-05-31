@@ -7,6 +7,7 @@ import pickle
 import time
 
 import os
+import shutil
 import stat
 from os import listdir
 from os.path import isfile, join
@@ -68,7 +69,21 @@ def Check_Directory(dirPath):
 
 
 def Edit_Movie(filePath, fileName, extension, name):
-    model = pickle.loads(open(f"data/model/{name}.model", "rb").read())
+    """
+    originModelPath = f"data/model/{name}.yml"
+    trainModelPath = "data/model/train.yml"
+    if not os.path.exists(originModelPath):
+        print("학습된 모델 파일이 존재하지 않습니다.")
+        return
+
+    if os.path.exists(trainModelPath):
+        os.remove(trainModelPath)
+
+    shutil.copyfile(originModelPath, trainModelPath)
+
+    model = cv2.face.LBPHFaceRecognizer_create()
+    model.read(trainModelPath)
+    """
     movieData = cv2.VideoCapture(filePath)
 
     # 출력 결과 파일을 data폴더에 temp.* 파일로 폴더에 저장
@@ -83,36 +98,49 @@ def Edit_Movie(filePath, fileName, extension, name):
 
     maxFrame = movieData.get(cv2.CAP_PROP_FRAME_COUNT)
 
-    dirName = "data/IMG/Video/"
+    dirPath = "data/Video/"
     '''
     start = time.time()
-    if os.path.exists(dirName):
-        files = [f for f in listdir(dirName) if isfile(join(dirName, f))]
+    if os.path.exists(dirPath):
+        files = [f for f in listdir(dirPath) if isfile(join(dirPath, f))]
         for i, file in enumerate(files):
-            os.chmod(dirName + files[i], stat.S_IWUSR)
-            os.remove(dirName + files[i])
-        os.rmdir(dirName)
+            os.chmod(dirPath + files[i], stat.S_IWUSR)
+            os.remove(dirPath + files[i])
+        os.rmdir(dirPath)
     end = time.time()
     print(f"Remove All Files :{end - start}s")
     '''
-    '''
-    if not os.path.exists(dirName):
-        os.makedirs(dirName)
+
+    sstart = time.time()
+    if not os.path.exists(dirPath):
+        os.makedirs(dirPath)
+
     start = time.time()
     while movieData.isOpened():
         ret, frame = movieData.read()
         if frame is None:
             break
         print(f"Save Frame in Video {number} / {maxFrame}")
-        cv2.imwrite(dirName + "IMG" + f"{number:04}" + ".jpg", frame)
+        cv2.imwrite(dirPath + "IMG" + f"{number:04}" + ".jpg", frame)
         number += 1
-        # if number > 1000:
-        #   break
+        
     end = time.time()
     print(f"Time to save video: {end - start: .2f}s")
 
-    fc.sk_clustering(dirName)
-    return
+    start = time.time()
+    detected = fd.faceDetection(fps)
+    end = time.time()
+    print("Check all images: ", format(end - start, '.2f'), "s")
+    video_images = [f for f in os.listdir(dirPath) if os.path.isfile(os.path.join(dirPath, f))]
+    for i, imgFile in enumerate(video_images):
+        imgPath = dirPath + video_images[i]
+        image = fd.imread_utf8(imgPath)
+        image = fd.draw_face(image, detected.faces[i])
+        image = cv2.putText(image, str(i+1), (10, 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), thickness=1)
+        output.write(image)
+        print(f'Progress: {i + 1} / {len(video_images)}')
+    end = time.time()
+    print("All Process is end: ", format(end - sstart, '.2f'), "s")
     '''
 
     maxFrame = movieData.get(cv2.CAP_PROP_FRAME_COUNT)
@@ -132,6 +160,7 @@ def Edit_Movie(filePath, fileName, extension, name):
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
+    '''
     # OpenCV를 통해 영상처리가 끝난 파일들을 release해줌
     movieData.release()
     output.release()
