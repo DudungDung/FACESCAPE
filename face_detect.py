@@ -304,17 +304,12 @@ def find_one_face_dnn(temp, filename):
             box = faces[0, 0, j, 3:7] * np.array([w, h, w, h])
             sx, sy, ex, ey = box.astype("int")
             faceImg = img[sy:ey, sx:ex]
-<<<<<<< HEAD
-            faceImg = cv2.resize(faceImg, dsize=(300, 300), interpolation=cv2.INTER_LINEAR)
-=======
-
             fH, fW = faceImg.shape[:2]
             if fW < 20 or fH < 20:
                 count -= 1
                 break
 
             faceImg = cv2.resize(faceImg, dsize=(150, 150), interpolation=cv2.INTER_LINEAR)
->>>>>>> MTCNN
 
     os.remove(temp)
     if count == 1:
