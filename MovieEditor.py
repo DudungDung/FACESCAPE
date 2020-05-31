@@ -1,12 +1,11 @@
 import cv2
 from moviepy.editor import *
-
-import face_clustering as fc
-import face_detect as fd
-import pickle
 import time
-
 import os
+
+import face_detect as fd
+
+from face_learn import make_model
 import shutil
 import stat
 from os import listdir
@@ -112,6 +111,7 @@ def Edit_Movie(filePath, fileName, extension, name):
     '''
 
     sstart = time.time()
+
     if not os.path.exists(dirPath):
         os.makedirs(dirPath)
 
@@ -127,8 +127,13 @@ def Edit_Movie(filePath, fileName, extension, name):
     end = time.time()
     print(f"Time to save video: {end - start: .2f}s")
 
+
     start = time.time()
-    detected = fd.faceDetection(fps)
+    model, in_encoder, labels = make_model(name)
+    if model is None:
+        print("모델 파일이 없습니다.")
+        return
+    detected = fd.faceDetection(fps, name, model, in_encoder, labels)
     end = time.time()
     print("Check all images: ", format(end - start, '.2f'), "s")
     video_images = [f for f in os.listdir(dirPath) if os.path.isfile(os.path.join(dirPath, f))]

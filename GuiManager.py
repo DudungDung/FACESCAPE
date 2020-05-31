@@ -6,7 +6,7 @@ from tkinter import filedialog
 
 import MovieEditor as me
 import WebCrawler as wc
-import face_recog as fr
+from face_learn import face_learning
 
 
 class MainFrame(Frame):
@@ -91,7 +91,7 @@ class MainFrame(Frame):
     def Search_Name(self):
         if not self.crawlName.get() == "" or None:
             if wc.Allow_Certain_Folder_Name(self.crawlName.get()):
-                wc.Crawling_Image(self.crawlName.get(), 500)
+                wc.Crawling_Image(self.crawlName.get(), 200)
                 # crawlWindow = Toplevel(self.master)
                 # crawlWindow.mainloop()
             else:
@@ -100,13 +100,7 @@ class MainFrame(Frame):
             self.Set_Progress_Message("검색어를 입력해주세요")
 
     def Learning_Picture(self):
-        if not self.crawlName.get() == "" or None:
-            if wc.Allow_Certain_Folder_Name(self.crawlName.get()):
-                fr.LBPH_Recog(self.crawlName.get())
-            else:
-                self.Set_Progress_Message('검색어에 \%/:*?"<>|.를 넣을 수 없습니다.')
-        else:
-            self.Set_Progress_Message('검색어를 입력해주세요.')
+        face_learning()
 
     # 변환할 동영상 파일
     def Load_Movie_File(self):

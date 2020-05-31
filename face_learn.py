@@ -1,0 +1,176 @@
+from os import listdir
+from os.path import isdir
+
+import cv2
+from PIL import Image
+from numpy import array, asarray, load
+from numpy import expand_dims, savez_compressed
+import numpy as np
+from sklearn.preprocessing import LabelEncoder, Normalizer
+from sklearn.svm import SVC
+import os
+import time
+
+import face_detect as fd
+import face_recognition
+
+
+def extract_face(filename, required_size=(160, 160)):
+    image = Image.open(filename)
+    image = image.convert('RGB')
+    pixels = asarray(image)
+    faces, h, w = fd.find_faces_dnn(pixels)
+    for i in range(0, faces.shape[2]):
+        confidence = faces[0, 0, i, 2]
+        if confidence > 0.5:
+            dnn_box = faces[0, 0, i, 3:7] * array([w, h, w, h])
+            sx, sy, ex, ey = dnn_box.astype("int")
+            face = pixels[sy:ey, sx:ex]
+            image = Image.fromarray(face)
+            image = image.resize(required_size)
+            face_array = asarray(image)
+            return face_array
+    return None
+
+
+def load_faces(directory):
+    faces = list()
+    for i, filename in enumerate(listdir(directory)):
+        print(f"Process in {directory}: {i+1}/{len(listdir(directory))}")
+        path = directory + filename
+        face = extract_face(path)
+        if face is not None:
+            faces.append(face)
+    return faces
+
+
+def load_dataset():
+    directory = 'data/IMG/'
+
+    if len(listdir(directory)) < 2:
+        print("2명 이상의 인물을 검색해주세요.")
+        return None, None
+    x, y = list(), list()
+    for subdir in listdir(directory):
+        path = directory + subdir + '/'
+        if not isdir(path):
+            continue
+
+        faces = load_faces(path)
+
+        labels = [subdir for _ in range(len(faces))]
+
+        x.extend(faces)
+        y.extend(labels)
+    return asarray(x), asarray(y)
+
+
+def face_learning():
+    start = time.time()
+    tTrainX, trainY = load_dataset()
+    if tTrainX is None:
+        return
+    trainX = list()
+    for i, face_pixels in enumerate(tTrainX):
+        print(f"Process in train : {i + 1}/{len(tTrainX)}")
+        embedding = face_recognition.face_encodings(face_pixels, {(0, 159, 159, 0)})
+        trainX.append(embedding)
+    trainX = asarray(trainX)
+    ttrainX = []
+    for e in trainX:
+        ttrainX.append(array(e).flatten())
+    trainX = ttrainX
+    savez_compressed('data/model.npz', trainX, trainY)
+    end = time.time()
+    print("Success make model", format(end - start, '.2f'), "s")
+
+
+def make_model(name):
+    path = 'data/model.npz'
+    if not os.path.exists(path):
+        print("Need Learning model")
+        return None
+    data = load('data/model.npz')
+
+    trainX, trainY = data['arr_0'], data['arr_1']
+    hasName = False
+    for label in trainY:
+        if label == name:
+            hasName = True
+            break
+
+    if hasName is False:
+        print("모델에 인물이 없습니다.")
+        return None
+
+    in_encoder = Normalizer(norm='max')
+    trainX = in_encoder.transform(trainX)
+
+    out_encoder = LabelEncoder()
+    out_encoder.fit(trainY)
+    trainY = out_encoder.transform(trainY)
+
+    model = SVC(kernel='linear', probability=True)
+    model.fit(trainX, trainY)
+
+    return model, in_encoder, out_encoder
+
+
+def compare(model, in_encoder, out_encoder, face, name):
+    face = cv2.resize(face, (160, 160))
+
+    newtestX = list()
+    embedding = face_recognition.face_encodings(face, {(0, 159, 159, 0)})
+    newtestX.append(embedding)
+    newtestX = asarray(newtestX)
+
+    testX = []
+    for t in newtestX:
+        testX.append(array(t).flatten())
+
+    testX = in_encoder.transform(testX)
+
+    for i in range(testX.shape[0]):
+        sample = expand_dims(testX[i], axis=0)
+        yhat_class = model.predict(sample)
+        yhat_prob = model.predict_proba(sample)
+        class_index = yhat_class[0]
+        class_probability = yhat_prob[0, class_index] * 100
+        predict_names = out_encoder.inverse_transform(yhat_class)
+        print(f"Predict : {predict_names[0]}, {int(class_probability)}%")
+        if (class_probability >= 85) and (predict_names[0] == name):
+            return True
+
+    return False
+
+
+def a():
+    tTestX, testY = load_dataset()
+    testX = list()
+    for i, face_pixels in enumerate(tTestX):
+        print(f"Process in test : {i+1}/{len(tTestX)}")
+        embedding = face_recognition.face_encodings(face_pixels, {(0, 159, 159, 0)})
+        testX.append(embedding)
+    testX = asarray(testX)
+    print(testX.shape)
+    for e in testX:
+        tTestX.append(array(e).flatten())
+    testX = tTestX
+    print(testX.shape)
+
+
+"""
+for selection in range(testX.shape[0]):
+    random_face_pixels = txfa[selection]
+    random_face_emb = testX[selection]
+
+    samples = expand_dims(random_face_emb, axis=0)
+    yhat_class = model.predict(samples)
+    yhat_prob = model.predict_proba(samples)
+
+    class_index = yhat_class[0]
+    class_probability = yhat_prob[0, class_index] * 100
+    predict_names = out_encoder.inverse_transform(yhat_class)
+    print('예상 : %s (%.3f)' % (predict_names[0], class_probability))
+    print('원본 번호: %d' % selection)
+"""

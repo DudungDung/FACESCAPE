@@ -73,11 +73,12 @@ def Crawling_Image(name, maxAmount):
                     try:
                         img = urlopen(i[1].attrs['data-source']).read()
                         filename = dirName + 'IMG' + f'{currentImageAmount:05}' + '.jpg'
-                        f = open(filename, "wb")
-                        f.write(img)
-                        f.close()
+                        tempFileName = dirName + 'Temp' + f'{currentImageAmount:05}' + '.jpg'
+                        with open(tempFileName, "wb") as f:
+                            f.write(img)
+                            f.close()
 
-                        if fd.find_one_face_dnn(filename):
+                        if fd.find_one_face_dnn(tempFileName, filename):
                             print(i[1].attrs['alt'])
                             print("Img Save Success: " + str(currentImageAmount))
                             currentImageAmount += 1

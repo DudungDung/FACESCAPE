@@ -4,6 +4,7 @@ import FaceDetector as models
 import os
 
 import time
+from face_learn import compare
 
 
 class Box:
@@ -14,6 +15,21 @@ class Box:
         self.ey = ey
         self.w = ex - sx
         self.h = ey - sy
+
+
+def modify_box(box, w, h):
+    if box.sx < 0:
+        box.sx = 0
+    if box.sy < 0:
+        box.sy = 0
+    if box.ex >= w:
+        box.ex = w - 1
+    if box.ey >= h:
+        box.ey = h - 1
+    box.w = box.ex - box.sx
+    box.h = box.ey - box.sy
+
+    return box
 
 
 def compare_box(box1, box2):
@@ -45,14 +61,14 @@ class faceDetection():
     faces = []  # [boxes]
     frame_amount = -1
 
-    def __init__(self, fps):
-        self.frame_amount = int(fps)
+    def __init__(self, fps, name, model, in_enc, labels):
+        self.frame_amount = int(fps / 2)
         dirPath = "data/Video/"
         video_images = [f for f in os.listdir(dirPath) if os.path.isfile(os.path.join(dirPath, f))]
 
         empty_faces = 0
         for i, imgFile in enumerate(video_images):
-            print(f"Processing Marking Box {i} / {len(video_images)}")
+            print(f"Processing Marking Box {i+1} / {len(video_images)}")
             image = imread_utf8(dirPath + video_images[i])
             boxes = face_detect(image)
             if len(boxes) == 0:
@@ -61,6 +77,20 @@ class faceDetection():
                 empty_faces = 0
             self.faces.append(boxes)
             self.arrange_boxes(i)
+
+            start = time.time()
+            remove_boxes = []
+            for box in boxes:
+                face = image[box.sy:box.ey, box.sx:box.ex]
+                if compare(model, in_enc, labels, face, name) is False:
+                    remove_boxes.append(box)
+
+            for rm in remove_boxes:
+                self.faces[i].remove(rm)
+            remove_boxes.clear()
+            end = time.time()
+            print(f"Find faces in {i+1}: ", format(end - start, '.2f'), "s")
+
             if i > self.frame_amount > empty_faces:
                 start = time.time()
                 self.face_checking(i)
@@ -78,7 +108,13 @@ class faceDetection():
                         indexes.append(k)
                         j = i + 1 + startIndex
                         while j < index:
-                            self.faces[j].append(box2)
+                            isSkip = False
+                            for b in self.faces[j]:
+                                if compare_box(box1, b):
+                                    isSkip = True
+                                    break
+                            if isSkip is False:
+                                self.faces[j].append(box1)
                             j += 1
 
         if len(indexes) > 0:
@@ -89,7 +125,7 @@ class faceDetection():
 
     # 중복되는 box들은 지워줌
     def arrange_boxes(self, index):
-        print(f"{index}. Remove redundant boxes among {len(self.faces[index])} boxes")
+        # print(f"{index}. Remove redundant boxes among {len(self.faces[index])} boxes")
         small_boxes = []
         boxes = []
         labels = []
@@ -110,7 +146,6 @@ class faceDetection():
                             # labels에 없던 box라면 새롭게 만들어줘야함.
                             if label == len(labels):
                                 labels.append([box1])
-                                isBreak = True
                                 break
                             # labels에 이미 있던 box라면 추가해줌.
                             else:
@@ -124,7 +159,6 @@ class faceDetection():
         for small_box in small_boxes:
             self.faces[index].remove(small_box)
 
-        find_label = False
         # 중복된 box를 지울 때 다 지우면 안되므로 한개 남겨야함.
         for i, box in enumerate(boxes):
             for label_boxes in labels:
@@ -146,13 +180,15 @@ def draw_face(image, boxes):
 def face_detect(image):
     boxes = []
 
+    (height, width) = image.shape[:2]
+
     # MTCNN에서 얼굴 찾기
     face_mtcnn_list = find_faces_mtcnn(image)
     if len(face_mtcnn_list) > 0:
-        color = (255, 255, 0)
         for face in face_mtcnn_list:
             x, y, w, h = face['box']
             box = Box(x, y, x + w, y + h)
+            box = modify_box(box, width, height)
             boxes.append(box)
 
     # DNN에서 얼굴 찾기
@@ -165,7 +201,9 @@ def face_detect(image):
             dnn_box = detections_dnn[0, 0, i, 3:7] * np.array([w, h, w, h])
             sx, sy, ex, ey = dnn_box.astype("int")
             box = Box(sx, sy, ex, ey)
+            box = modify_box(box, width, height)
             boxes.append(box)
+
 
     return boxes
 
@@ -253,8 +291,8 @@ def find_faces_dnn(img):
     return detections, h, w
 
 
-def find_one_face_dnn(filename):
-    img = imread_utf8(filename)
+def find_one_face_dnn(temp, filename):
+    img = imread_utf8(temp)
     count = 0
     faces, h, w = find_faces_dnn(img)
     for j in range(0, faces.shape[2]):
@@ -274,13 +312,13 @@ def find_one_face_dnn(filename):
 
             faceImg = cv2.resize(faceImg, dsize=(150, 150), interpolation=cv2.INTER_LINEAR)
 
+    os.remove(temp)
     if count == 1:
         print("Find one face")
-        imwrite_utf8(filename, faceImg)
+        imwrite_utf8(filename, img)
         return True
     else:
         print("face is not only one")
-        os.remove(filename)
         return False
 
 
