@@ -142,35 +142,3 @@ def compare(model, in_encoder, out_encoder, face, name):
             return True
 
     return False
-
-
-def a():
-    tTestX, testY = load_dataset()
-    testX = list()
-    for i, face_pixels in enumerate(tTestX):
-        print(f"Process in test : {i+1}/{len(tTestX)}")
-        embedding = face_recognition.face_encodings(face_pixels, {(0, 159, 159, 0)})
-        testX.append(embedding)
-    testX = asarray(testX)
-    print(testX.shape)
-    for e in testX:
-        tTestX.append(array(e).flatten())
-    testX = tTestX
-    print(testX.shape)
-
-
-"""
-for selection in range(testX.shape[0]):
-    random_face_pixels = txfa[selection]
-    random_face_emb = testX[selection]
-
-    samples = expand_dims(random_face_emb, axis=0)
-    yhat_class = model.predict(samples)
-    yhat_prob = model.predict_proba(samples)
-
-    class_index = yhat_class[0]
-    class_probability = yhat_prob[0, class_index] * 100
-    predict_names = out_encoder.inverse_transform(yhat_class)
-    print('예상 : %s (%.3f)' % (predict_names[0], class_probability))
-    print('원본 번호: %d' % selection)
-"""
