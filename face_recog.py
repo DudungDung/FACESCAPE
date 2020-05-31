@@ -6,6 +6,9 @@ import pickle
 import cv2
 import os
 
+from os import listdir
+from os.path import isfile, join
+
 import time
 import face_detect as fd
 
@@ -34,6 +37,52 @@ def imwrite_utf8(img_path, img, params=None):
     except Exception as e:
         print(e)
         return None
+
+
+def LBPH_Recog(name):
+    recognizer = cv2.face.LBPHFaceRecognizer_create()
+
+    dirPath = f"data/IMG/{name}/"
+    humanPath = "data/IMG/동양인"
+    modelPath = "data/model/"
+
+    label = 0
+
+    trains = []
+    labels = []
+
+    findfiles = [f for f in listdir(dirPath) if isfile(join(dirPath, f))]
+
+    if findfiles.__len__() == 0:
+        print("학습할 사진이 없습니다.")
+        return
+    # onlyfiles.append([f for f in listdir(humanPath) if isfile(join(humanPath, f)))
+
+    try:
+        if not os.path.exists(modelPath):
+            os.makedirs(modelPath)
+            print("Create Directory: " + modelPath)
+
+    except OSError:
+        print("Error: Creating directory: " + modelPath)
+
+    for i, files in enumerate(findfiles):
+        print(f"[INFO] processing image {i+1}/ {len(findfiles)}")
+        image_path = dirPath + findfiles[i]
+        image = imread_utf8(image_path, cv2.IMREAD_COLOR)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        imwrite_utf8(modelPath + "/face_" + str(i) + ".jpg", image)
+
+
+        trains.append(image)
+        labels.append(label)
+
+    recognizer.train(trains, np.array(labels))
+    recognizer.save(modelPath + f"trainer.yml")
+    if os.path.exists(modelPath + name + ".yml"):
+        os.remove(modelPath + name + ".yml")
+    os.rename(modelPath + "trainer.yml", modelPath + name + ".yml")
+    print(f"{name} Learning Success")
 
 
 def Face_Recog():
