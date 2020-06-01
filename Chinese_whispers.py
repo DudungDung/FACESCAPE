@@ -3,7 +3,7 @@ import tensorflow as tf
 import numpy as np
 import importlib
 import argparse
-import facenet
+import facenet.src.facenet as facenet
 import os
 import math
 
@@ -26,8 +26,9 @@ def face_distance(face_encodings, face_to_compare):
 
 def load_model(model_dir, meta_file, ckpt_file):
     model_dir_exp = os.path.expanduser(model_dir)
-    saver = tf.train.import_meta_graph(os.path.join(model_dir_exp, meta_file))
-    saver.restore(tf.get_default_session(), os.path.join(model_dir_exp, ckpt_file))
+    print(os.path.exists(model_dir_exp))
+    saver = tf.compat.v1.train.import_meta_graph(os.path.join(model_dir_exp, meta_file))
+    saver.restore(tf.compat.v1.get_default_session(), os.path.join(model_dir_exp, ckpt_file))
 
 
 def _chinese_whispers(encoding_list, threshold=0.75, iterations=20):
@@ -214,9 +215,9 @@ def main(args):
             load_model(args.model_dir, meta_file, ckpt_file)
 
             # Get input and output tensors
-            images_placeholder = tf.get_default_graph().get_tensor_by_name("input:0")
-            embeddings = tf.get_default_graph().get_tensor_by_name("embeddings:0")
-            phase_train_placeholder = tf.get_default_graph().get_tensor_by_name("phase_train:0")
+            images_placeholder = tf.compat.v1.get_default_graph().get_tensor_by_name("batch_join:0")
+            embeddings = tf.compat.v1.get_default_graph().get_tensor_by_name("embeddings:0")
+            phase_train_placeholder = tf.compat.v1.get_default_graph().get_tensor_by_name("phase_train:0")
 
             image_size = images_placeholder.get_shape()[1]
             print("image_size:", image_size)
@@ -248,15 +249,15 @@ def parse_args():
     """Parse input arguments."""
     import argparse
     parser = argparse.ArgumentParser(description='Get a shape mesh (t-pose)')
-    parser.add_argument('--model_dir', type=str, help='model dir', required=True)
-    parser.add_argument('--batch_size', type=int, help='batch size', required=30)
-    parser.add_argument('--input', type=str, help='Input dir of images', required=True)
-    parser.add_argument('--output', type=str, help='Output dir of clusters', required=True)
+    parser.add_argument('--model_dir', type=str, help='model dir')
+    parser.add_argument('--batch_size', type=int, help='batch size')
+    parser.add_argument('--input', type=str, help='Input dir of images')
+    parser.add_argument('--output', type=str, help='Output dir of clusters')
     args = parser.parse_args()
-    args.model_dir = 'model'
-    args.batch_size = '128'
-    args.input = 'input'
-    args.output = 'output'
+    args.model_dir = 'data/model'
+    args.batch_size = '8'
+    args.input = 'data/input'
+    args.output = 'data/output'
     return args
 
 

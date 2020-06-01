@@ -270,7 +270,7 @@ def find_one_face_dnn(filename):
 
     if count == 1:
         print("Find one face")
-        imwrite_utf8(filename, faceImg)
+        imwrite_utf8(filename, img)
         return True
     else:
         print("face is not only one")

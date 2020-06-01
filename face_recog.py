@@ -106,7 +106,7 @@ def Recog_Face():
                     sx, sy, ex, ey = dnn_box.astype("int")
                     box = [sy, ex, ey, sx]
                     rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-                    rgb = cv2.resize(rgb, dsize=(150, 150), interpolation=cv2.INTER_LINEAR)
+                    rgb = cv2.resize(rgb, dsize=(160, 160), interpolation=cv2.INTER_LINEAR)
                     rgb_box = [[0, 149, 149, 0]]
                     encoding = face_recognition.face_encodings(rgb, rgb_box)
                     for e in encoding:
@@ -141,15 +141,21 @@ def Recog_Face():
             knownEncoding.append(en)
             knownNames.append("Human")
     '''
-    w1 = tf.Variable(tf.random.normal(knownEncodings), name='w1')
-    saver = tf.compat.v1.train.Saver()
-    sess = tf.compat.v1.Session()
-    sess.run(tf.compat.v1.global_variables_initializer())
-    sess.run(w1)
-    saver.save(sess, 'model')
+
+    with tf.compat.v1.Session() as sess:
+        batch_join = tf.Variable(tf.concat(knownEncodings), name='batch_join')
+       # encoding = tf.Variabel(tf.)
+       # phase_train
+        graph = tf.compat.v1.global_variables_initializer()
+        sess.run(graph)
+        saver = tf.compat.v1.train.Saver()
+
+        sess.run(batch_join)
+        saver.save(sess, 'data/model/model')
+
     print("Serializing encodings")
-    data = {"encodings": knownEncodings, "names": knownNames}
-    f = open(f"data/model/test.", "w", encoding ='utf-8')
-    f.write(pickle.dumps(data))
-    f.close()
+   # data = {"encodings": knownEncodings, "names": knownNames}
+   # f = open(f"data/model/test.", "w", encoding ='utf-8')
+   # f.write(pickle.dumps(data))
+   # f.close()
     print("End")

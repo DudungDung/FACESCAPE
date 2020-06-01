@@ -77,7 +77,6 @@ class FaceClustering():
                     break """
                 image_path = src_file + src[ret]
                 image = cv2.imread(image_path, cv2.IMREAD_COLOR)
-
                 rgb = image[:, :, ::-1]
                 faces_in_frame = []
 
@@ -187,7 +186,7 @@ if __name__ == '__main__':
 
 
     fc = FaceClustering()
-    src_file = "Video/"
+    src_file = "data/input"
     fc.encode(src_file, 0, 0)
     fc.save("encodings.pickle")
     """if args.encode:
