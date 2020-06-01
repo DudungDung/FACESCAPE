@@ -11,4 +11,7 @@ hog_detector = dlib.get_frontal_face_detector()
 protextPath = "data/DNN/deploy.prototxt"
 caffeModelPath = "data/DNN/res10_300x300_ssd_iter_140000.caffemodel"
 dnn_detector = cv2.dnn.readNetFromCaffe(protextPath, caffeModelPath)
+
+img = cv2.imread("data/Dummy.jpg")
+mtcnn_detector.detect_faces(img)
 print("Detector Initialize")
