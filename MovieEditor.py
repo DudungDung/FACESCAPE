@@ -137,6 +137,7 @@ def Edit_Movie(filePath, fileName, extension, name):
     end = time.time()
     print("Check all images: ", format(end - start, '.2f'), "s")
     video_images = [f for f in os.listdir(dirPath) if os.path.isfile(os.path.join(dirPath, f))]
+    video_images.sort()
     for i, imgFile in enumerate(video_images):
         imgPath = dirPath + video_images[i]
         image = fd.imread_utf8(imgPath)

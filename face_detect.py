@@ -56,16 +56,17 @@ def compare_box(box1, box2):
     return i
 
 
-class faceDetection():
+class faceDetection:
     label = []
     faces = []  # [boxes]
     frame_amount = -1
 
     def __init__(self, fps, name, model, in_enc, labels):
         self.frame_amount = int(fps / 2)
+        self.faces.clear()
         dirPath = "data/Video/"
         video_images = [f for f in os.listdir(dirPath) if os.path.isfile(os.path.join(dirPath, f))]
-
+        video_images.sort()
         empty_faces = 0
         for i, imgFile in enumerate(video_images):
             print(f"Processing Marking Box {i+1} / {len(video_images)}")
@@ -110,7 +111,7 @@ class faceDetection():
                         while j < index:
                             isSkip = False
                             for b in self.faces[j]:
-                                if compare_box(box1, b):
+                                if compare_box(box1, b) != -1:
                                     isSkip = True
                                     break
                             if isSkip is False:
