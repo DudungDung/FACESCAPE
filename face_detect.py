@@ -81,6 +81,7 @@ class faceDetection:
 
             start = time.time()
             remove_boxes = []
+
             for box in boxes:
                 face = image[box.sy:box.ey, box.sx:box.ex]
                 if compare(model, in_enc, labels, face, name) is False:
@@ -100,18 +101,22 @@ class faceDetection:
 
     def face_checking(self, index):
         # 일정 프레임 이내의 상태를 확인하고 알맞는 박스가 있으면 같은 사람으로 인식
+        # 현재 프레임 내에서 이미 확인한 박스인지 확인하는 List
         indexes = []
+        # 시작점 체크
         startIndex = index - self.frame_amount
         for i, boxes in enumerate(self.faces[startIndex:index - 1]):
+            # 프레임 넘버에 해당하는 박스 목록을 차례로 비교.
             for box1 in boxes:
                 for k, box2 in enumerate(self.faces[index]):
-                    if (k not in indexes) and (compare_box(box1, box2) == 1):
+                    if (k not in indexes) and (compare_box(box1, box2) == 0 or 1):
                         indexes.append(k)
                         j = i + 1 + startIndex
                         while j < index:
                             isSkip = False
+                            # 만약에 이미 비슷한 얼굴이 있다면 박스를 해쳐서는 안되므로
                             for b in self.faces[j]:
-                                if compare_box(box1, b) != -1:
+                                if compare_box(box1, b) == 0 or 1:
                                     isSkip = True
                                     break
                             if isSkip is False:
@@ -204,7 +209,6 @@ def face_detect(image):
             box = Box(sx, sy, ex, ey)
             box = modify_box(box, width, height)
             boxes.append(box)
-
 
     return boxes
 
