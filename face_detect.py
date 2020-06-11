@@ -80,17 +80,17 @@ class faceDetection:
             self.arrange_boxes(i)
 
             start = time.time()
-            remove_boxes = []
+            not_remove_boxes = []
 
             for box in boxes:
                 face = image[box.sy:box.ey, box.sx:box.ex]
-                for name in names:
-                    if compare(model, in_enc, labels, face, name) is False:
-                        remove_boxes.append(box)
+                if compare(model, in_enc, labels, face, names) is True:
+                    not_remove_boxes.append(box)
 
-            for rm in remove_boxes:
-                self.faces[i].remove(rm)
-            remove_boxes.clear()
+            self.faces[i].clear()
+            self.faces[i].extend(not_remove_boxes)
+            not_remove_boxes.clear()
+
             end = time.time()
             print(f"Find faces in {i+1}: ", format(end - start, '.2f'), "s")
 

@@ -142,7 +142,6 @@ def Edit_Movie(filePath, fileName, extension, names):
         imgPath = dirPath + video_images[i]
         image = fd.imread_utf8(imgPath)
         image = fd.draw_face(image, detected.faces[i])
-        image = cv2.putText(image, str(i+1), (10, 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), thickness=1)
         output.write(image)
         print(f'Progress: {i + 1} / {len(video_images)}')
     end = time.time()
