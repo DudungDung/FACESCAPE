@@ -67,7 +67,7 @@ def Check_Directory(dirPath):
         return "잘못된 경로입니다."
 
 
-def Edit_Movie(filePath, fileName, extension, name):
+def Edit_Movie(filePath, fileName, extension, names):
     """
     originModelPath = f"data/model/{name}.yml"
     trainModelPath = "data/model/train.yml"
@@ -129,11 +129,11 @@ def Edit_Movie(filePath, fileName, extension, name):
 
 
     start = time.time()
-    model, in_encoder, labels = make_model(name)
+    model, in_encoder, labels = make_model()
     if model is None:
         print("모델 파일이 없습니다.")
         return
-    detected = fd.faceDetection(fps, name, model, in_encoder, labels)
+    detected = fd.faceDetection(fps, names, model, in_encoder, labels)
     end = time.time()
     print("Check all images: ", format(end - start, '.2f'), "s")
     video_images = [f for f in os.listdir(dirPath) if os.path.isfile(os.path.join(dirPath, f))]

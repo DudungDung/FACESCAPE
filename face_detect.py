@@ -61,7 +61,7 @@ class faceDetection:
     faces = []  # [boxes]
     frame_amount = -1
 
-    def __init__(self, fps, name, model, in_enc, labels):
+    def __init__(self, fps, names, model, in_enc, labels):
         self.frame_amount = int(fps / 2)
         self.faces.clear()
         dirPath = "data/Video/"
@@ -84,8 +84,9 @@ class faceDetection:
 
             for box in boxes:
                 face = image[box.sy:box.ey, box.sx:box.ex]
-                if compare(model, in_enc, labels, face, name) is False:
-                    remove_boxes.append(box)
+                for name in names:
+                    if compare(model, in_enc, labels, face, name) is False:
+                        remove_boxes.append(box)
 
             for rm in remove_boxes:
                 self.faces[i].remove(rm)

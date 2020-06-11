@@ -1,4 +1,5 @@
 import os
+import pickle
 
 import tkinter.font as tkf
 from tkinter import *
@@ -18,6 +19,7 @@ class MainFrame(Frame):
         self.master = master
         self.master.title("FACESCAPE")
         self.pack(fill=BOTH, expand=True)
+        self.names = []
 
         # 빈공간
         emptyFrame = Frame(self)
@@ -106,9 +108,7 @@ class MainFrame(Frame):
     def Search_Name(self):
         if not self.crawlName.get() == "" or None:
             if wc.Allow_Certain_Folder_Name(self.crawlName.get()):
-                wc.Crawling_Image(self.crawlName.get(), 100)
-                # crawlWindow = Toplevel(self.master)
-                # crawlWindow.mainloop()
+                wc.Crawling_Image(self.crawlName.get(), 50)
             else:
                 self.Set_Progress_Message('검색어에 \%/:*?"<>|.를 넣을 수 없습니다.')
         else:
@@ -145,13 +145,39 @@ class MainFrame(Frame):
             self.Set_Progress_Message("파일 이름이 설정되지 않았습니다.")
 
         else:
+            if self.Check_People() is False:
+                self.Set_Progress_Message("학습된 인물인지 확인해주세요.")
+                return
+
             self.progressMessage.set("실행 중")
             saveFilePath = self.savePath.get() + "/" + self.saveFileName.get()
             extension = me.Find_Extension(self.filePath.get())
-            me.Edit_Movie(self.filePath.get(), saveFilePath, extension, self.findName.get())
+            me.Edit_Movie(self.filePath.get(), saveFilePath, extension, self.names)
             self.progressMessage.set("실행 완료")
             os.startfile(self.savePath.get())
-    
+
+    # 인물이 학습이 됐는지 확인
+    def Check_People(self):
+        learned_path = 'data/modellist.bin'
+        if not os.path.exists(learned_path):
+            return False
+
+        names = self.findName.get().replace(' ', '')
+        if self.findName.get() == "" or None:
+            return False
+
+        names = names.split(',')
+
+        f = open('data/modellist.bin', "rb")
+        learned = pickle.load(f)
+        for name in names:
+            if name not in learned:
+                return False
+
+        self.names = names
+        f.close()
+        return True
+
     def Set_Progress_Message(self, msg):
         self.progressMessage.set(msg)
 

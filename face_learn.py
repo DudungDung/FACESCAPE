@@ -1,3 +1,4 @@
+import pickle
 from os import listdir
 from os.path import isdir
 
@@ -43,9 +44,7 @@ def load_faces(directory):
     return faces
 
 
-def load_dataset():
-    directory = 'data/IMG/'
-
+def load_dataset(directory):
     if len(listdir(directory)) < 2:
         print("2명 이상의 인물을 검색해주세요.")
         return None, None
@@ -65,8 +64,10 @@ def load_dataset():
 
 
 def face_learning():
+    directory = 'data/IMG/'
+
     start = time.time()
-    tTrainX, trainY = load_dataset()
+    tTrainX, trainY = load_dataset(directory)
     if tTrainX is None:
         return
     trainX = list()
@@ -80,11 +81,20 @@ def face_learning():
         ttrainX.append(array(e).flatten())
     trainX = ttrainX
     savez_compressed('data/model.npz', trainX, trainY)
+
+    learned_people = []
+    for subdir in listdir(directory):
+        learned_people.append(str(subdir))
+
+    with open('data/modellist.bin', "wb") as f:
+        pickle.dump(learned_people, f)
+        f.close()
+
     end = time.time()
     print("Success make model", format(end - start, '.2f'), "s")
 
 
-def make_model(name):
+def make_model():
     path = 'data/model.npz'
     if not os.path.exists(path):
         print("Need Learning model")
@@ -92,15 +102,6 @@ def make_model(name):
     data = load('data/model.npz')
 
     trainX, trainY = data['arr_0'], data['arr_1']
-    hasName = False
-    for label in trainY:
-        if label == name:
-            hasName = True
-            break
-
-    if hasName is False:
-        print("모델에 인물이 없습니다.")
-        return None
 
     in_encoder = Normalizer(norm='max')
     trainX = in_encoder.transform(trainX)
