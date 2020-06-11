@@ -31,20 +31,35 @@ class MainFrame(Frame):
         crawlFrame.pack(fill=NONE)
         crawlDirLbl = Label(crawlFrame, text="검색 이름: ", width=10, height=1)
         self.crawlName = StringVar()
-        crawlDirInput = Entry(crawlFrame, textvariable=self.crawlName, width=15)
+        crawlDirInput = Entry(crawlFrame, textvariable=self.crawlName)
         crawlDirButton = Button(crawlFrame, text="Search", width=7, height=1, command=self.Search_Name, repeatdelay=100)
-        crawlLearnButton = Button(crawlFrame, text="학습", width=7, height=1, command=self.Learning_Picture, repeatdelay=100)
         crawlDirLbl.pack(side=LEFT, padx=8, pady=10)
-        crawlDirInput.pack(side=LEFT, padx=4, pady=10)
-        crawlDirButton.pack(side=LEFT, padx=8, pady=10)
-        crawlLearnButton.pack(side=LEFT, padx=8, pady=10)
+        crawlDirInput.pack(side=LEFT, padx=3, pady=10)
+        crawlDirButton.pack(side=LEFT, padx=4, pady=10)
+
+        # 학습
+        learnFrame = Frame(self)
+        learnFrame.pack(fill=NONE)
+        learnButton = Button(learnFrame, text="학습", width=7, height=1, command=self.Learning_Picture, repeatdelay=100)
+        learnButton.pack(side=TOP, padx=8, pady=5)
+
+        # 인물 이름
+        findFrame = Frame(self)
+        findFrame.pack(fill=NONE)
+        findLbl = Label(findFrame, text="편집 대상: ", width=10, height=1)
+        self.findName = StringVar()
+        findInput = Entry(findFrame, textvariable=self.findName)
+        emptyLbl = Label(findFrame, width=7, height=1)
+        findLbl.pack(side=LEFT, padx=8, pady=10)
+        findInput.pack(side=LEFT, padx=3, pady=10)
+        emptyLbl.pack(side=LEFT, padx=4, pady=10)
 
         # 파일 위치
         fileFrame = Frame(self)
         fileFrame.pack(fill=NONE)
         fileDirLbl = Label(fileFrame, text="파일 위치: ", width=10, height=1)
         self.filePath = StringVar()
-        fileDirInput = Entry(fileFrame, textvariable=self.filePath, width=40)
+        fileDirInput = Entry(fileFrame, textvariable=self.filePath)
         fileDirButton = Button(fileFrame, text="Find", width=7, height=1, command=self.Load_Movie_File, repeatdelay=100)
         fileDirLbl.pack(side=LEFT, padx=8, pady=10)
         fileDirInput.pack(side=LEFT, padx=3, pady=10)
@@ -55,7 +70,7 @@ class MainFrame(Frame):
         saveFrame.pack(fill=NONE)
         saveDirLbl = Label(saveFrame, text="저장 위치: ", width=10, height=1)
         self.savePath = StringVar()
-        saveDirInput = Entry(saveFrame, textvariable=self.savePath, width=40)
+        saveDirInput = Entry(saveFrame, textvariable=self.savePath)
         saveDirButton = Button(saveFrame, text="Find", width=7, height=1, command=self.Set_Output_Directory,
                                repeatdelay=100)
         saveDirLbl.pack(side=LEFT, padx=8, pady=10)
@@ -133,10 +148,10 @@ class MainFrame(Frame):
             self.progressMessage.set("실행 중")
             saveFilePath = self.savePath.get() + "/" + self.saveFileName.get()
             extension = me.Find_Extension(self.filePath.get())
-            me.Edit_Movie(self.filePath.get(), saveFilePath, extension, self.crawlName.get())
+            me.Edit_Movie(self.filePath.get(), saveFilePath, extension, self.findName.get())
             self.progressMessage.set("실행 완료")
             os.startfile(self.savePath.get())
-
+    
     def Set_Progress_Message(self, msg):
         self.progressMessage.set(msg)
 
@@ -147,7 +162,7 @@ def MainGUI():
     screenWidth = root.winfo_screenwidth()
     screenHeight = root.winfo_screenheight()
     width = 480
-    height = 320
+    height = 400
     pos_x = int(screenWidth / 2 - width / 2)
     pos_y = int(screenHeight / 2 - height / 2)
     root.geometry(str(width) + "x" + str(height) + "+" + str(pos_x) + "+" + str(pos_y))
@@ -157,8 +172,10 @@ def MainGUI():
     root.resizable(False, False)
     root.mainloop()
 
+
 def main():
     MainGUI()
+
 
 if __name__ ==  "__main__":
     main()
