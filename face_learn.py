@@ -5,7 +5,6 @@ import cv2
 from PIL import Image
 from numpy import array, asarray, load
 from numpy import expand_dims, savez_compressed
-import numpy as np
 from sklearn.preprocessing import LabelEncoder, Normalizer
 from sklearn.svm import SVC
 import os
