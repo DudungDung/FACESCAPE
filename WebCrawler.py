@@ -2,6 +2,7 @@ from urllib.request import urlopen
 import requests
 from bs4 import BeautifulSoup
 import os
+import time
 
 import re
 import face_detect as fd
@@ -32,6 +33,7 @@ def Crawling_Image(search, maxAmount):
     for c in '/:*?"<>|\\ ':
         search = search.replace(c, "")
 
+    sstart = time.time()
     names = search.split(',')
     # 이미지 url https://search.naver.com/search.naver?where=image&query=검색이름
     # 네이버는 기본적으로 50개를 불러오는 방식을 이용함
@@ -46,9 +48,17 @@ def Crawling_Image(search, maxAmount):
         startNum = 0
         currentImageAmount = 1
 
-        dirName = f"data/IMG/{name}/"
+        dirName = "data/IMG/" + name + "/"
+        os.path.exists(dirName)
         try:
-            if not os.path.exists(dirName):
+            if os.path.exists(dirName):
+                start = time.time()
+                files = [f for f in os.listdir(dirName) if os.path.isfile(os.path.join(dirName, f))]
+                for i, file in enumerate(files):
+                    os.remove(dirName + "IMG" + f"{i + 1:05}" + ".jpg")
+                end = time.time()
+                print(f"Remove All Files :{end - start: .2f}s")
+            else:
                 os.makedirs(dirName)
                 print("Create Directory: " + dirName)
 
@@ -89,6 +99,9 @@ def Crawling_Image(search, maxAmount):
                             continue
 
             startNum += 50
+
+    end = time.time()
+    print(f"Crawling Complete :{end - sstart: .2f}s")
 
     # 이미지 url https://www.google.com/search?q=검색내용&tbm=isch
     # 구글은 기본적으로 20개를 불러오는 방식을 이용함

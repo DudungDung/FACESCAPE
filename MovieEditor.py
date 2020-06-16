@@ -98,19 +98,15 @@ def Edit_Movie(filePath, fileName, extension, names):
     maxFrame = movieData.get(cv2.CAP_PROP_FRAME_COUNT)
 
     dirPath = "data/Video/"
-    '''
+    sstart = time.time()
+
     start = time.time()
     if os.path.exists(dirPath):
         files = [f for f in listdir(dirPath) if isfile(join(dirPath, f))]
         for i, file in enumerate(files):
-            os.chmod(dirPath + files[i], stat.S_IWUSR)
-            os.remove(dirPath + files[i])
-        os.rmdir(dirPath)
+            os.remove(dirPath + "IMG" + f"{i + 1:04}" + ".jpg")
     end = time.time()
-    print(f"Remove All Files :{end - start}s")
-    '''
-
-    sstart = time.time()
+    print(f"Remove All Files :{end - start: .2f}s")
 
     if not os.path.exists(dirPath):
         os.makedirs(dirPath)
