@@ -83,8 +83,10 @@ def face_learning():
     savez_compressed('data/model.npz', trainX, trainY)
 
     learned_people = []
-    for subdir in listdir(directory):
-        learned_people.append(str(subdir))
+    for person in trainY:
+        if person not in learned_people:
+            learned_people.append(str(person))
+            print(person)
 
     with open('data/modellist.bin', "wb") as f:
         pickle.dump(learned_people, f)
@@ -140,6 +142,6 @@ def compare(model, in_encoder, out_encoder, face, names):
         print(f"Predict : {predict_names[0]}, {int(class_probability)}%")
         for name in names:
             if (class_probability >= 75) and (predict_names[0] == name):
-                return True
+                return name
 
-    return False
+    return None
