@@ -8,13 +8,14 @@ from face_learn import compare
 
 
 class Box:
-    def __init__(self, sx, sy, ex, ey):
+    def __init__(self, sx, sy, ex, ey, name):
         self.sx = sx
         self.sy = sy
         self.ex = ex
         self.ey = ey
         self.w = ex - sx
         self.h = ey - sy
+        self.label = name
 
 
 def modify_box(box, w, h):
@@ -39,6 +40,9 @@ def compare_box(box1, box2):
     # 1은 복사 or 삭제 대상. 0, 2는 삭제 대상.
 
     i = -1
+    if box2.label != "NONE":
+        return i
+
     if ((box1.sx + (box1.w * ratio)) > box2.sx and (box1.ex - (box1.w * ratio)) < box2.ex and
             (box1.sy + (box1.h * ratio)) > box2.sy and (box1.ey - (box1.h * ratio)) < box2.ey and
             (box2.sx + (box2.w * ratio)) > box1.sx and (box2.ex - (box2.w * ratio)) < box1.ex and
@@ -84,8 +88,10 @@ class faceDetection:
 
             for box in boxes:
                 face = image[box.sy:box.ey, box.sx:box.ex]
-                if compare(model, in_enc, labels, face, names) is True:
-                    not_remove_boxes.append(box)
+                cmp = compare(model, in_enc, labels, face, names)
+                if cmp is not None:
+                    tmpbox = Box(box.sx, box.sy, box.ex, box.ey, cmp)
+                    not_remove_boxes.append(tmpbox)
 
             self.faces[i].clear()
             self.faces[i].extend(not_remove_boxes)
@@ -194,7 +200,7 @@ def face_detect(image):
     if len(face_mtcnn_list) > 0:
         for face in face_mtcnn_list:
             x, y, w, h = face['box']
-            box = Box(x, y, x + w, y + h)
+            box = Box(x, y, x + w, y + h, "NONE")
             box = modify_box(box, width, height)
             boxes.append(box)
 
@@ -207,7 +213,7 @@ def face_detect(image):
             dnn_face_amount += 1
             dnn_box = detections_dnn[0, 0, i, 3:7] * np.array([w, h, w, h])
             sx, sy, ex, ey = dnn_box.astype("int")
-            box = Box(sx, sy, ex, ey)
+            box = Box(sx, sy, ex, ey, "NONE")
             box = modify_box(box, width, height)
             boxes.append(box)
 
