@@ -34,19 +34,26 @@ def modify_box(box, w, h):
 
 
 def compare_box(box1, box2):
+    r = 0.85
     ratio = (1 - 0.7) / 2
+    # 박스의 크기가 비슷하면서 중심점이 상대의 내부에 있을 경우
     # 서로가 일정 비율의 박스로 상대 박스 안에 있을 경우
     # 완전히 같거나 아예 들어간 경우는 0, 유사한 경우는 1, 아예 상관없으면 -1
     # 1은 복사 or 삭제 대상. 0, 2는 삭제 대상.
 
     i = -1
-    if box2.label != "NONE":
+    if box2.label != box1.label:
         return i
 
+    # 비슷한 위치에 유사한 박스인 경우
     if ((box1.sx + (box1.w * ratio)) > box2.sx and (box1.ex - (box1.w * ratio)) < box2.ex and
             (box1.sy + (box1.h * ratio)) > box2.sy and (box1.ey - (box1.h * ratio)) < box2.ey and
             (box2.sx + (box2.w * ratio)) > box1.sx and (box2.ex - (box2.w * ratio)) < box1.ex and
             (box2.sy + (box2.h * ratio)) > box1.sy and (box2.ey - (box2.h * ratio)) < box1.ey):
+        i = 3
+
+    # 박스가 유사한 경우
+    if (box1.w > box2.w * r or box1.h > box2.h * r) and (box1.w * r < box2.w or box1.h * r < box2.h):
         i = 1
 
     # box1이 메인이기 때문에 삭제 대상으로 잡을것은 box1이 안에 들어간 경우.
@@ -73,7 +80,7 @@ class faceDetection:
         video_images.sort()
         empty_faces = 0
         for i, imgFile in enumerate(video_images):
-            print(f"Processing Marking Box {i+1} / {len(video_images)}")
+            print(f"Processing Marking Box {i + 1} / {len(video_images)}")
             image = imread_utf8(dirPath + video_images[i])
             boxes = face_detect(image)
             if len(boxes) == 0:
@@ -98,7 +105,7 @@ class faceDetection:
             not_remove_boxes.clear()
 
             end = time.time()
-            print(f"Find faces in {i+1}: ", format(end - start, '.2f'), "s")
+            print(f"Find faces in {i + 1}: ", format(end - start, '.2f'), "s")
 
             if i > self.frame_amount > empty_faces:
                 start = time.time()
@@ -117,8 +124,9 @@ class faceDetection:
             for box1 in boxes:
                 for k, box2 in enumerate(self.faces[index]):
                     if (k not in indexes) and (compare_box(box1, box2) == 0 or 1):
-                        indexes.append(k)
                         j = i + 1 + startIndex
+                        rx = (box2.ex + box2.w/2) - (box1.ex + box1.w/2)
+                        ry = (box2.ey - box2.h/2) - (box1.ey - box1.h/2)
                         while j < index:
                             isSkip = False
                             # 만약에 이미 비슷한 얼굴이 있다면 박스를 해쳐서는 안되므로
@@ -127,7 +135,13 @@ class faceDetection:
                                     isSkip = True
                                     break
                             if isSkip is False:
-                                self.faces[j].append(box1)
+                                ratio = float((j - i - startIndex) / (self.frame_amount - i))
+                                sx = int(box1.sx + rx * ratio)
+                                ex = int(box1.ex + rx * ratio)
+                                sy = int(box1.sy + ry * ratio)
+                                ey = int(box1.ey + ry * ratio)
+                                tbox = Box(sx, sy, ex, ey, box1.label)
+                                self.faces[j].append(tbox)
                             j += 1
 
         if len(indexes) > 0:
@@ -150,7 +164,7 @@ class faceDetection:
                     if cp == 2:
                         small_boxes.append(box1)
                         break
-                    elif cp != -1:
+                    elif cp == 0 or 3:
                         boxes.append(box1)
                         label = 0
                         isBreak = False
@@ -163,7 +177,7 @@ class faceDetection:
                             # labels에 이미 있던 box라면 추가해줌.
                             else:
                                 for label_box in labels[label]:
-                                    if compare_box(box1, label_box) != -1:
+                                    if compare_box(box1, label_box) == 0 or 3:
                                         labels[label].append(box1)
                                         isBreak = True
                                         break
@@ -195,15 +209,6 @@ def face_detect(image):
 
     (height, width) = image.shape[:2]
 
-    # MTCNN에서 얼굴 찾기
-    face_mtcnn_list = find_faces_mtcnn(image)
-    if len(face_mtcnn_list) > 0:
-        for face in face_mtcnn_list:
-            x, y, w, h = face['box']
-            box = Box(x, y, x + w, y + h, "NONE")
-            box = modify_box(box, width, height)
-            boxes.append(box)
-
     # DNN에서 얼굴 찾기
     detections_dnn, h, w = find_faces_dnn(image)
     dnn_face_amount = 0
@@ -214,6 +219,15 @@ def face_detect(image):
             dnn_box = detections_dnn[0, 0, i, 3:7] * np.array([w, h, w, h])
             sx, sy, ex, ey = dnn_box.astype("int")
             box = Box(sx, sy, ex, ey, "NONE")
+            box = modify_box(box, width, height)
+            boxes.append(box)
+
+    # MTCNN에서 얼굴 찾기
+    face_mtcnn_list = find_faces_mtcnn(image)
+    if len(face_mtcnn_list) > 0:
+        for face in face_mtcnn_list:
+            x, y, w, h = face['box']
+            box = Box(x, y, x + w, y + h, "NONE")
             box = modify_box(box, width, height)
             boxes.append(box)
 
