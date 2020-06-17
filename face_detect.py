@@ -42,7 +42,7 @@ def compare_box(box1, box2):
     # 1은 복사 or 삭제 대상. 0, 2는 삭제 대상.
 
     i = -1
-    if box2.label != box1.label:
+    if box1.label == "NONE" or box2.label == "NONE" or box1.label != box2.label:
         return i
 
     # 비슷한 위치에 유사한 박스인 경우
@@ -73,7 +73,7 @@ class faceDetection:
     frame_amount = -1
 
     def __init__(self, fps, names, model, in_enc, labels):
-        self.frame_amount = int(fps / 2)
+        self.frame_amount = int(fps * 2 / 3)
         self.faces.clear()
         dirPath = "data/Video/"
         video_images = [f for f in os.listdir(dirPath) if os.path.isfile(os.path.join(dirPath, f))]
@@ -123,7 +123,8 @@ class faceDetection:
             # 프레임 넘버에 해당하는 박스 목록을 차례로 비교.
             for box1 in boxes:
                 for k, box2 in enumerate(self.faces[index]):
-                    if (k not in indexes) and (compare_box(box1, box2) == 0 or 1):
+                    cp = compare_box(box1, box2)
+                    if (k not in indexes) and (cp == 0 or cp == 1):
                         j = i + 1 + startIndex
                         rx = (box2.ex + box2.w/2) - (box1.ex + box1.w/2)
                         ry = (box2.ey - box2.h/2) - (box1.ey - box1.h/2)
@@ -131,7 +132,8 @@ class faceDetection:
                             isSkip = False
                             # 만약에 이미 비슷한 얼굴이 있다면 박스를 해쳐서는 안되므로
                             for b in self.faces[j]:
-                                if compare_box(box1, b) == 0 or 1:
+                                ccp = compare_box(box1, b)
+                                if ccp == 0 or ccp == 1:
                                     isSkip = True
                                     break
                             if isSkip is False:
@@ -164,7 +166,7 @@ class faceDetection:
                     if cp == 2:
                         small_boxes.append(box1)
                         break
-                    elif cp == 0 or 3:
+                    elif cp != -1 and cp != 1:
                         boxes.append(box1)
                         label = 0
                         isBreak = False
@@ -177,7 +179,8 @@ class faceDetection:
                             # labels에 이미 있던 box라면 추가해줌.
                             else:
                                 for label_box in labels[label]:
-                                    if compare_box(box1, label_box) == 0 or 3:
+                                    ccp = compare_box(box1, label_box)
+                                    if ccp != -1 and ccp != 1:
                                         labels[label].append(box1)
                                         isBreak = True
                                         break
@@ -198,9 +201,10 @@ class faceDetection:
 
 
 def draw_face(image, boxes):
-    color = (0, 255, 0)
     for box in boxes:
-        image = cv2.rectangle(image, (box.sx, box.sy), (box.ex, box.ey), color, thickness=3)
+        face_img = image[box.sy:+box.ey, box.sx:box.ex]
+        face_img = cv2.blur(face_img, (100, 100))
+        image[box.sy:box.ey, box.sx:box.ex] = face_img
     return image
 
 

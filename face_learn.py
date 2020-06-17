@@ -141,7 +141,7 @@ def compare(model, in_encoder, out_encoder, face, names):
         predict_names = out_encoder.inverse_transform(yhat_class)
         print(f"Predict : {predict_names[0]}, {int(class_probability)}%")
         for name in names:
-            if (class_probability >= 75) and (predict_names[0] == name):
+            if (class_probability >= 77) and (predict_names[0] == name):
                 return name
 
     return None
