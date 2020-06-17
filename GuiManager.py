@@ -42,8 +42,10 @@ class MainFrame(Frame):
         # 학습
         learnFrame = Frame(self)
         learnFrame.pack(fill=NONE)
-        learnButton = Button(learnFrame, text="학습", width=7, height=1, command=self.Learning_Picture, repeatdelay=100)
-        learnButton.pack(side=TOP, padx=8, pady=5)
+        learnButton = Button(learnFrame, text="학습", width=8, height=1, command=self.Learning_Picture, repeatdelay=100)
+        delDirButton = Button(learnFrame, text="이미지삭제", width=8, height=1, command=self.Search_Name, repeatdelay=100)
+        delDirButton.pack(side=LEFT, padx=8, pady=5)
+        learnButton.pack(side=LEFT, padx=8, pady=5)
 
         # 인물 이름
         findFrame = Frame(self)
@@ -108,12 +110,17 @@ class MainFrame(Frame):
     def Search_Name(self):
         if not self.crawlName.get() == "" or None:
             if wc.Allow_Certain_Folder_Name(self.crawlName.get()):
-                wc.Crawling_Image(self.crawlName.get(), 50)
+                wc.Crawling_Image(self.crawlName.get(), 100)
             else:
                 self.Set_Progress_Message('검색어에 \%/:*?"<>|.를 넣을 수 없습니다.')
         else:
             self.Set_Progress_Message("검색어를 입력해주세요")
 
+    # 이미지 내용물 삭제
+    def Remove_IMGs(self):
+        a = 1
+
+    # 이미지 학습
     def Learning_Picture(self):
         face_learning()
 
