@@ -1,5 +1,4 @@
 # face detection with mtcnn on a photograph
-import keras
 from mtcnn.mtcnn import MTCNN
 import cv2
 import tensorflow as tf

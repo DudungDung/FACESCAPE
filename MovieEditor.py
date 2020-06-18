@@ -68,21 +68,6 @@ def Check_Directory(dirPath):
 
 
 def Edit_Movie(filePath, fileName, extension, names):
-    """
-    originModelPath = f"data/model/{name}.yml"
-    trainModelPath = "data/model/train.yml"
-    if not os.path.exists(originModelPath):
-        print("학습된 모델 파일이 존재하지 않습니다.")
-        return
-
-    if os.path.exists(trainModelPath):
-        os.remove(trainModelPath)
-
-    shutil.copyfile(originModelPath, trainModelPath)
-
-    model = cv2.face.LBPHFaceRecognizer_create()
-    model.read(trainModelPath)
-    """
     movieData = cv2.VideoCapture(filePath)
 
     # 출력 결과 파일을 data폴더에 temp.* 파일로 폴더에 저장
@@ -123,7 +108,6 @@ def Edit_Movie(filePath, fileName, extension, names):
     end = time.time()
     print(f"Time to save video: {end - start: .2f}s")
 
-
     start = time.time()
     model, in_encoder, labels = make_model()
     if model is None:
@@ -142,26 +126,7 @@ def Edit_Movie(filePath, fileName, extension, names):
         print(f'Progress: {i + 1} / {len(video_images)}')
     end = time.time()
     print("All Process is end: ", format(end - sstart, '.2f'), "s")
-    '''
 
-    maxFrame = movieData.get(cv2.CAP_PROP_FRAME_COUNT)
-    movieData = cv2.VideoCapture(filePath)
-    # 영상 읽기
-    while movieData.isOpened():
-        ret, frame = movieData.read()
-        if frame is None:
-            break
-
-        output.write(fd.face_detect(frame, model))
-
-        # 다음 프레임으로 진행
-        number = number + 1
-        print(f'Progress: {number} / {maxFrame}')
-        # cv2.imshow('frame', frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-
-    '''
     # OpenCV를 통해 영상처리가 끝난 파일들을 release해줌
     movieData.release()
     output.release()
