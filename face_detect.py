@@ -67,6 +67,44 @@ def compare_box(box1, box2):
     return i
 
 
+def combine_box(box1, box2):
+    tmp_box = Box(box1.sx, box1.sy, box1.sx + box1.w, box1.sy + box1.h, box1.label)
+    # 겹쳐 있는 경우
+    # 하나의 꼭짓점이 다른 공간에 포함되어 있을 때 겹쳐있다고 판단
+    if ((box1.sx >= box2.sx and box1.sx <= (box2.sx + box2.w) and
+            ((box1.sy >= box2.sy and box1.sy <= (box2.sy + box2.h) or
+              box2.sy <= (box1.sy + box1.h) <= (box2.sy + box2.h)))
+        ) or
+        ((box1.sx + box1.w) >= box2.sx and (box1.sx + box1.w) < (box2.sx + box2.w) and
+            ((box1.sy >= box2.sy and box1.sy <= (box2.sy + box2.h) or
+            ((box1.sy + box1.h) >= box2.sy and (box1.sy + box1.h) <= (box2.sy + box2.h))))
+        ) or
+        (box2.sx >= box1.sx and box2.sx <= (box1.sx + box1.w) and
+            ((box2.sy >= box1.sy and box2.sy <= (box1.sy + box1.h) or
+            (box2.sy + box2.h) >= box1.sy and (box2.sy + box2.h) <= (box1.sy + box1.h)))
+        ) or
+        ((box2.sx + box2.w) >= box1.sx and (box2.sx + box2.w) <= (box1.sx + box1.w) and
+            ((box2.sy >= box1.sy and box2.sy <= (box1.sy + box1.h) or
+            (box2.sy + box2.h) >= box1.sy and (box2.sy + box2.h) <= (box1.sy + box1.h)))
+        )):
+
+        if box1.sx > box2.sx:
+            tmp_box.sx = box2.sx
+            tmp_box.w = tmp_box.w + (box1.sx - box2.sx)
+
+        if box1.sx + box1.w < box2.sx + box2.w:
+            tmp_box.w = tmp_box.w + (box2.sx + box2.w) - (box1.sx + box1.w)
+
+        if box1.sy > box2.sy:
+            tmp_box.sy = box2.sy
+            tmp_box.h = tmp_box.h + (box1.sy - box2.sy)
+
+        if box1.sy + box1.h < box2.sy + box2.h:
+            tmp_box.h = tmp_box.h + (box2.sy + box2.h) - (box1.sy + box1.h)
+
+    return tmp_box
+
+
 class faceDetection:
     label = []
     faces = []  # [boxes]
@@ -200,11 +238,29 @@ class faceDetection:
                     break
 
 
+# 블러 처리
 def draw_face(image, boxes):
-    for box in boxes:
-        face_img = image[box.sy:+box.ey, box.sx:box.ex]
-        face_img = cv2.blur(face_img, (100, 100))
-        image[box.sy:box.ey, box.sx:box.ex] = face_img
+    covered_boxes = []
+    # 블러처리 과정에서 겹쳐진 박스들을 합쳐주는 과정
+    for i, box in enumerate(boxes):
+        for j, comp_box in enumerate(boxes):
+            # 같은 인물일 경우 합쳐주는 과정 진행
+            if (i != j) and box.label == comp_box.label:
+                box = combine_box(box, comp_box)
+
+        is_covered = False
+        # 합쳐지면 같은 박스가 됨. 처리가 끝난 박스는 처리 X
+        for cov_box in covered_boxes:
+            cp = compare_box(box, cov_box)
+            if cp == 0:
+                is_covered = True
+                break
+
+        if is_covered is False:
+            face_img = image[box.sy:+box.ey, box.sx:box.ex]
+            face_img = cv2.blur(face_img, (70, 70))
+            image[box.sy:box.ey, box.sx:box.ex] = face_img
+            covered_boxes.append(box)
     return image
 
 
