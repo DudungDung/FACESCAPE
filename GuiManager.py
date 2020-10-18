@@ -43,8 +43,8 @@ class MainFrame(Frame):
         learnFrame = Frame(self)
         learnFrame.pack(fill=NONE)
         learnButton = Button(learnFrame, text="학습", width=8, height=1, command=self.Learning_Picture, repeatdelay=100)
-        delDirButton = Button(learnFrame, text="이미지삭제", width=8, height=1, command=self.Search_Name, repeatdelay=100)
-        delDirButton.pack(side=LEFT, padx=8, pady=5)
+        #delDirButton = Button(learnFrame, text="이미지삭제", width=8, height=1, command=self.Remove_IMGs, repeatdelay=100)
+        #delDirButton.pack(side=LEFT, padx=8, pady=5)
         learnButton.pack(side=LEFT, padx=8, pady=5)
 
         # 인물 이름
